@@ -33,6 +33,7 @@
                                 <div class="card-body">
 
                                     <x-forms.input name="title" label="Название книги" id="book-name" placeholder="Название книги" />
+                                    <x-forms.input name="link_to_original" label="Ссылка на оригинал" id="link_to_original" placeholder="Ссылка на оригинал" />
                                     <x-forms.checkbox name="is_active" label="Актитивный" id="is-active-book"/>
                                     <x-forms.textarea name="description" id="description" label="Описание"/>
 

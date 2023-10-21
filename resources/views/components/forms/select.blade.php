@@ -10,9 +10,7 @@
             @endforeach
 
         @else
-
-
-
+            <option value="0">Не выбрано</option>
             @foreach($dataArray as $item)
                 <option value="{{$item->id}}"
                 @if (old($name , $values)) {{ ($item->id == old($name, $values) ? "selected":"") }} @endif>

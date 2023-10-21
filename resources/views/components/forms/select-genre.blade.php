@@ -1,12 +1,13 @@
 <div class="form-group">
     <label>{{$label}}</label>
     <select  class="form-control" name="{{$name}}">
-            @foreach($dataArray as $item)
-                <option value="{{$item->slug}}"
-                @if (old($name , $values)) {{ ($item->slug == old($name, $values) ? "selected":"") }} @endif>
-                    {{$item->name}}
-                </option>
-            @endforeach
+        <option value="0">Не выбрано</option>
+        @foreach($dataArray as $item)
+            <option value="{{$item->slug}}"
+            @if (old($name , $values)) {{ ($item->slug == old($name, $values) ? "selected":"") }} @endif>
+                {{$item->name}}
+            </option>
+        @endforeach
     </select>
 </div>
 
