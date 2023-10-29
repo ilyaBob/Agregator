@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\IsCycleId;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBookRequest extends FormRequest
@@ -22,17 +23,19 @@ class StoreBookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
-            'link_to_original' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:books',
+            'link_to_original' => 'required|string|max:255|url',
             'is_active' => 'boolean',
             'age' => 'required|integer|min:1990|max:2030',
-            'cycle_number' => 'required|integer|max:100',
             'time' => 'required|string|max:9|regex:/^(?:[0-9]{1,3}:)?[0-5]?[0-9]:[0-5][0-9]$/',
-            'cycle_id' => 'required|integer|min:1',
+
+            'cycle_id' => 'integer',
+            'cycle_number' => [new IsCycleId],
+
             'description' => 'required|string|max:50000',
             'genre_slug' => 'required|string|max:50000|min:2',
 
-            'image' => 'required|file|mimes:jpeg,png,webp',
+            'image' => 'required|url',
 
             'authors' => 'array|required',
             'readers' => 'array|required',
@@ -46,13 +49,17 @@ class StoreBookRequest extends FormRequest
             'title.required' => 'Поле должно быть заполнено',
             'title.string' => 'Поле должно быть строкой',
             'title.max' => 'Максимальная дллина поля 255 символов',
+            'title.unique' => 'Такое название уже есть',
 
-            'cycle_id.required' => 'Поле должно быть заполнено',
-            'cycle_id.min' => 'Поле должно быть заполнено',
+            'link_to_original.url' => 'В поле должна быть указана ссылка',
+            'image.url' => 'В поле должна быть указана ссылка',
+
+            //'cycle_id.required' => 'Поле должно быть заполнено',
+            //'cycle_id.min' => 'Поле должно быть заполнено',
             'genre_slug.min' => 'Поле должно быть заполнено',
 
             'age.required' => 'Поле должно быть заполнено',
-            'cycle_number.required' => 'Поле должно быть заполнено',
+            //'cycle_number.required' => 'Поле должно быть заполнено',
 
             'time.required' => 'Поле должно быть заполнено',
             'time.max' => 'Время должно быть в формате 000:00:00',

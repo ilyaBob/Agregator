@@ -1,7 +1,12 @@
+<?php
+/**
+* @var $book \App\Models\Admin\Book
+*/
+?>
+
 @extends('layouts.admin')
 @section('container')
     <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
@@ -15,10 +20,9 @@
                         </ol>
                     </div>
                 </div>
-            </div><!-- /.container-fluid -->
+            </div>
         </section>
 
-        <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -27,7 +31,6 @@
                             <div class="card-header">
                                 <a class="btn btn-success" href="{{route('book.create')}}">Добавить</a>
                             </div>
-                            <!-- /.card-header -->
                             <div class="card-body">
                                 <table id="example1" class="table table-bordered table-striped">
                                     <thead>
@@ -45,7 +48,13 @@
                                             <tr>
                                                 <td>{{$book->id}}</td>
                                                 <td><a href="{{ route('book.edit', $book->id) }}">{{$book->title}}</a></td>
-                                                <td>{{$book->cycle->name}}</td>
+                                                <td>
+                                                    @if($book->cycle)
+                                                        {{$book->cycle->name}}
+                                                    @else
+                                                        Без цикла
+                                                    @endif
+                                                </td>
                                                 <td>{{$book->is_active}}</td>
                                                 <td>{{$book->created_at}}</td>
                                                 <td>
@@ -60,16 +69,10 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <!-- /.card-body -->
                         </div>
-                        <!-- /.card -->
                     </div>
-                    <!-- /.col -->
                 </div>
-                <!-- /.row -->
             </div>
-            <!-- /.container-fluid -->
         </section>
-        <!-- /.content -->
     </div>
 @endsection

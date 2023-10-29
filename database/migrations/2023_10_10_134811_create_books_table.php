@@ -21,11 +21,11 @@ return new class extends Migration
             $table->boolean('is_active')->default(false);
             $table->integer('age');
             $table->string('time');
-            $table->integer('cycle_number')->default(1);
+            $table->integer('cycle_number')->nullable();
             $table->string('genre_slug');
             $table->string('link_to_original');
 
-            $table->unsignedBigInteger('cycle_id');
+            $table->unsignedBigInteger('cycle_id')->nullable();
             $table->index('cycle_id', 'books_cycle_idx');
             $table->foreign('cycle_id', 'books_cycle_fk')->references('id')->on('cycles');
 

@@ -29,8 +29,9 @@ class FileSeeder extends Seeder
             'https://m1.audioknigi.xyz//a//y//4a9c1029fa505863//mp3//13.mp3',
         ];
 
-        foreach ($data as $item) {
+        foreach ($data as $key => $item) {
             File::factory()->create([
+                'title' => $key,
                 'file' => $item,
             ]);
         }

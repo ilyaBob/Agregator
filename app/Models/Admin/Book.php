@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use mysql_xdevapi\Collection;
 
 /**
+ * @property integer $id
  * @property string $title
  * @property string $slug
  * @property string $image
@@ -19,6 +20,7 @@ use mysql_xdevapi\Collection;
  * @property integer $age
  * @property integer $cycle_number
  * @property string $genre_slug
+ * @property string $link_to_original
  *
  *
  * @property object|Author $authors

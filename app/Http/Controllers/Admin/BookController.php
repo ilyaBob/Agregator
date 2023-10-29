@@ -38,9 +38,9 @@ class BookController extends Controller
     public function store(StoreBookRequest $request)
     {
         $data = $request->validated();
-        $data['image'] = Storage::disk('public')->put('/images', $data['image'] );
 
         BookService::store($data);
+
         return redirect()->route('book.index');
     }
 
@@ -53,18 +53,14 @@ class BookController extends Controller
         $genres = Genre::getGenres();
         $cycles = Cycle::getCycles();
 
-        return view('admin.book.edit', compact('book','authors', 'readers', 'genres', 'cycles'));
+        return view('admin.book.edit', compact('book', 'authors', 'readers', 'genres', 'cycles'));
     }
 
     public function update(UpdateBookRequest $request, Book $id)
     {
         $data = $request->validated();
 
-        if (!key_exists('is_active', $data)) {
-            $data['is_active'] = 0;
-        }
-
-        $id->update($data);
+        BookService::update($id, $data);
 
         return redirect()->route('book.index');
     }

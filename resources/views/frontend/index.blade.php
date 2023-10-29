@@ -36,7 +36,7 @@ use App\Enums\SettingEnum;
                 @foreach($books as $book)
                     <a class="poster grid-item d-flex fd-column has-overlay" href="{{route('frontend.single.index', [$book->genre_slug, $book->slug])}}">
                         <div class="poster__img img-responsive img-responsive--portrait img-fit-cover">
-                            <img src="{{ url('storage/'. $book->image) }}" alt="{{$book->title}}">
+                            <img src="{{$book->image}}" alt="{{$book->title}}">
                             <div class="poster__label">{{$book->time}}</div>
                             <div class="has-overlay__mask btn-icon anim"><span class="fal fa-headphones"></span></div>
 

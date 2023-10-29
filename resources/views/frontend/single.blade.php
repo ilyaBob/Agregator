@@ -35,9 +35,8 @@ use App\Enums\SettingEnum;
 
                 <div class="page__subcol-side">
                     <div class="pmovie__poster img-fit-cover">
-                        <img
-                            src="{{ url('storage/'. $book->image) }}"
-                            alt="{{ $book->title }}">
+{{--                        <img src="{{ url('storage/'. $book->image) }}" alt="{{ $book->title }}">--}}
+                        <img src="{{$book->image}}" alt="{{ $book->title }}">
 
                     </div>
                 </div>
@@ -66,7 +65,9 @@ use App\Enums\SettingEnum;
                             <div>Время</div> {{$book->time}}
                         </li>
 
-                        <li><div>Цикл:</div><span><a href="#">{{$book->cycle->name}}</a> №{{$book->cycle_number}}</span></li>
+                        @if($book->cycle)
+                            <li><div>Цикл:</div><span><a href="#">{{$book->cycle->name}}</a> №{{$book->cycle_number}}</span></li>
+                        @endif
 
                         <li>
                             <div>Жанр:</div>
@@ -90,8 +91,6 @@ use App\Enums\SettingEnum;
 
             </div>
 
-            <!-- END PAGE SUBCOLS -->
-
             <div class="pmovie__caption">
                 Прослушать аудиокнигу <b>бесплатно "{{$book->title}}"</b>.
                 Это книга относится к популярному жанру
@@ -105,7 +104,6 @@ use App\Enums\SettingEnum;
                 вашего внимания!
             </div>
 
-
             <div class="page__cols d-flex">
                 <div class="page__col-main flex-grow-1 d-flex fd-column">
                     <h2 class="page__subtitle">Описание</h2>
@@ -113,23 +111,22 @@ use App\Enums\SettingEnum;
 
                     <br><br>
 
-                    {{--            ================================================              --}}
-                    <h2>Все книги серии</h2>
-                    <br>
-                    <ul class="nav">
-                        @foreach($cycle->books as $book)
-                            <li>
-                                <a href="{{route('frontend.single.index', [$book->genre_slug,$book->slug])}}">
-                                   {{$book->title}}
-                                    <span style="float: right;"></span>
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
+                    @if($cycle)
+                        <h2>Все книги серии</h2>
+                        <br>
+                        <ul class="nav">
+                            @foreach($cycle->books as $book)
+                                <li>
+                                    <a href="{{route('frontend.single.index', [$book->genre_slug,$book->slug])}}">
+                                        {{$book->title}}
+                                        <span style="float: right;"></span>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
 
-                    {{--            ================================================              --}}
-
-                    <br><br>
+                        <br><br>
+                    @endif
 
                     <h2 class="page__subtitle">Слушать онлайн "{{$book->title}}" бесплатно</h2>
                 </div>
@@ -160,7 +157,7 @@ use App\Enums\SettingEnum;
                         file: [
                                 @foreach($book->files as $file)
                             {
-                                "title": "{{$file->id}}", 'file': "{{$file->file}}"
+                                "title": "{{$file->title}}", 'file': "{{$file->file}}"
                             },
                             @endforeach
                         ]

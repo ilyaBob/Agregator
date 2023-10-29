@@ -20,6 +20,7 @@
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <li class="nav-header">Книги</li>
                 <li class="nav-item">
                     <a href="{{route('book.index')}}" class="nav-link">
                         <i class="nav-icon far fa-image"></i>
@@ -36,7 +37,6 @@
                         </p>
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{route('reader.index')}}" class="nav-link">
                         <i class="nav-icon far fa-image"></i>
@@ -45,7 +45,6 @@
                         </p>
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{route('genre.index')}}" class="nav-link">
                         <i class="nav-icon far fa-image"></i>
@@ -54,7 +53,6 @@
                         </p>
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a href="{{route('cycle.index')}}" class="nav-link">
                         <i class="nav-icon far fa-image"></i>
@@ -63,9 +61,18 @@
                         </p>
                     </a>
                 </li>
+                <li class="nav-header">Авто добавление</li>
+                <li class="nav-item">
+                    <a href="{{route('add-one.index')}}" class="nav-link">
+                        <i class="nav-icon far fa-image"></i>
+                        <p>Добавить одну</p>
+                    </a>
+                </li>
 
             </ul>
         </nav>
+
+
         <!-- /.sidebar-menu -->
     </div>
     <!-- /.sidebar -->

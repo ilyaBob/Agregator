@@ -1,7 +1,6 @@
 @extends('layouts.admin')
 @section('container')
     <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
@@ -16,10 +15,9 @@
                         </ol>
                     </div>
                 </div>
-            </div><!-- /.container-fluid -->
+            </div>
         </section>
 
-        <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -31,13 +29,12 @@
                             <form action="{{ route('book.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="card-body">
-
                                     <x-forms.input name="title" label="Название книги" id="book-name" placeholder="Название книги" />
                                     <x-forms.input name="link_to_original" label="Ссылка на оригинал" id="link_to_original" placeholder="Ссылка на оригинал" />
                                     <x-forms.checkbox name="is_active" label="Актитивный" id="is-active-book"/>
                                     <x-forms.textarea name="description" id="description" label="Описание"/>
 
-                                    <x-forms.image name="image" id="image-file" label="Картинка" />
+                                    <x-forms.input name="image" label="Картинка" id="image-file" placeholder="https://fantworld.net/uploads/mini/fullstory/5c/na-ruinah-imperii-brajan-stejvli.webp" />
 
                                     <x-forms.input name="age" label="Год написания" id="book-age" placeholder="Год написания" />
                                     <x-forms.input name="cycle_number" label="Номер в цикле" id="book-cycle_number" placeholder="Номер в цикле" />
@@ -49,8 +46,6 @@
                                     <x-forms.select name="authors" label="Авторы" :multiple="true" :dataArray="$authors" />
                                     <x-forms.select name="readers" label="Чтецы" :multiple="true" :dataArray="$readers" />
                                     <x-forms.select name="genres" label="Жанры" :multiple="true" :dataArray="$genres" />
-
-
                                 </div>
                                 <div class="card-footer">
                                     <button type="submit" class="btn btn-primary">Добавить</button>
@@ -58,12 +53,8 @@
                             </form>
                         </div>
                     </div>
-                    <!-- /.col -->
                 </div>
-                <!-- /.row -->
             </div>
-            <!-- /.container-fluid -->
         </section>
-        <!-- /.content -->
     </div>
 @endsection

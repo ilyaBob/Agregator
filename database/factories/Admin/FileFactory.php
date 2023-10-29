@@ -17,7 +17,7 @@ class FileFactory extends Factory
     public function definition(): array
     {
         return [
-            'file' => 'https://m1.audioknigi.xyz//a//y//4a9c1029fa505863//mp3//1.mp3',
+            'file' => '22222',
         ];
     }
 }
