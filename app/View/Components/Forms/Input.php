@@ -20,7 +20,8 @@ class Input extends Component
         public $value = null,
         public $class = null,
         public $disabled = null,
-
+        public $formClass = null,
+        public $multiple = false,
     )
     {
     }

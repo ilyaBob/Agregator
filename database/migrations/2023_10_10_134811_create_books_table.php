@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('image');
             $table->text('description');
             $table->boolean('is_active')->default(false);
-            $table->integer('age');
+            $table->integer('age')->nullable();
             $table->string('time');
             $table->integer('cycle_number')->nullable();
             $table->string('genre_slug');

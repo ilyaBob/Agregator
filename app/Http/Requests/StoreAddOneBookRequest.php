@@ -22,7 +22,7 @@ class StoreAddOneBookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'url' => 'required'
+            'url' => 'array'
         ];
     }
 }

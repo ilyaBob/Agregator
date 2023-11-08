@@ -1,10 +1,10 @@
-<div class="form-group bor">
+<div class="form-group {{$formClass}}">
     @if($label)
         <label for="{{$id}}">{{$label}}</label>
     @endif
     <input
         type="{{$type}}"
-        name="{{$name}}"
+        name="{{$name}}@if($multiple)[]@endif;"
         class="form-control {{$class}} {{($errors->has($name)? 'is-invalid': false)}}"
 
         @if($id)

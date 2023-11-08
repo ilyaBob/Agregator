@@ -30,13 +30,16 @@
                             <form action="{{ route('add-one.store') }}" method="POST">
                                 @csrf
                                 <div class="card-body">
-                                    <div class="form-group">
-                                        <label for="url">Ссылка на оригинал</label>
-                                        <input type="text" name="url" class="form-control" id="url" placeholder="https://fantworld.net/7463-kodeks-ohotnika-kniga-1-jurij-vinokurov-oleg-sapfir.html">
-                                    </div>
+                                    <x-forms.input name="url" formClass="form-url" :multiple="true" label="Ссылка на оригинал" id="url" placeholder="https://fantworld.net/7463-kodeks-ohotnika-kniga-1-jurij-vinokurov-oleg-sapfir.html"/>
+
+
+                                    <button id="add-url-book" class="btn btn-primary" type="button">Добавить поле для ссылки</button>
+
                                 </div>
+
+
                                 <div class="card-footer">
-                                    <button type="submit" class="btn btn-primary">Добавить</button>
+                                    <button type="submit" class="btn btn-success">Добавить</button>
                                 </div>
                             </form>
                         </div>

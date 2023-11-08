@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Parsing;
 
 use App\Models\Admin\Author;
 use App\Models\Admin\Book;
@@ -8,38 +8,44 @@ use App\Models\Admin\Cycle;
 use App\Models\Admin\File;
 use App\Models\Admin\Genre;
 use App\Models\Admin\Reader;
-use Exception;
+use App\Services\TransliterationService;
 use Illuminate\Support\Facades\DB;
 use simplehtmldom\HtmlWeb;
 
-class AddBookService
+class AudioknigaOnline
 {
-    public function store($url)
-    {
+    public $domain = null;
+    public function findData($url){
+
+        $client = new HtmlWeb();
+        $html = $client->load($url);
+
         $parsedUrl = parse_url($url);
-        $domain = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+
+        $this->domain = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+        $title = $html->find('h1', 0)->plaintext;
+        $id = Book::where('title', $title)->first();
+
+        if (!empty($id)) {
+            return null;
+        }
+
+        $list = $html->find('.short-list>li');
+        $description = $html->find('.full-text', 0)->plaintext;
+        $image = $html->find('.fimg img', 0)->getAttribute('data-src');
 
         DB::beginTransaction();
 
         try {
-            $client = new HtmlWeb();
-            $html = $client->load($url);
-
-            $title = $html->find('h1', 0)->plaintext;
-            $id = Book::where('title', $title)->first();
-
-            if (!empty($id)) {
-                return null;
-            }
-
-            $list = $html->find('.pmovie__header-list>li');
-            $description = $html->find('.full-text', 0)->plaintext;
-            $image = $html->find('.pmovie__poster img', 0)->getAttribute('data-src');
-
             $res = [];
 
             foreach ($list as $item) {
-                preg_match("/Год:|Автор:|Читает:|Время|Цикл:|Жанр:/", $item->plaintext, $match);
+                preg_match("/Год:|Автор:|Читает:|Время|Цикл|Жанр:/", $item->plaintext, $match);
+
+                if (empty($match)){
+                    continue;
+                }
+
                 $val = str_replace($match[0], "", $item->plaintext);
                 $key = str_replace(":", "", $match[0]);
 
@@ -51,7 +57,7 @@ class AddBookService
 
                     case 'Цикл':
                         $res["cycle_number"] = $this->getCycle($val);
-                        $res["cycle_id"] = $this->getCycleNumber($val);
+                        $res["cycle_id"] = $this->getCycleName($val);
                         break;
 
                     case 'Автор':
@@ -79,7 +85,7 @@ class AddBookService
             $res["description"] = $description;
             $res["title"] = $title;
             $res["slug"] = TransliterationService::generateSlug($title);
-            $res["image"] = $domain.$image;
+            $res["image"] = $this->domain.$image;
             $res['files'] = $this->getFiles($html);
             $res['link_to_original'] = $url;
             $res['is_active'] = '1';
@@ -88,15 +94,15 @@ class AddBookService
 
             return $res;
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             DB::rollback();
             abort(404);
         }
     }
 
-    public function getGenres($val)
+    protected function getGenres($val)
     {
-        $arrGenre = explode("/", $val);
+        $arrGenre = explode(",", $val);
         $arrGenreRes = [];
 
         foreach ($arrGenre as $genre) {
@@ -116,9 +122,9 @@ class AddBookService
         return $arrGenreRes;
     }
 
-    public function getGenreSlug($val)
+    protected function getGenreSlug($val)
     {
-        $arrGenre = explode("/", $val);
+        $arrGenre = explode(",", $val);
         $arrGenreRes = [];
 
         foreach ($arrGenre as $genre) {
@@ -136,16 +142,16 @@ class AddBookService
         }
     }
 
-    public function getCycle($val)
+    protected function getCycle($val)
     {
         preg_match("/№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]/", $val, $match);
         return str_replace("№", "", $match[0]);
     }
 
-    public function getCycleNumber($val)
+    protected function getCycleName($val)
     {
         preg_match("/№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]/", $val, $match);
-        $cycleName = trim(str_replace($match[0], "", $val));
+        $cycleName = trim(str_replace([$match[0], '»', '«' , '()' ], "", $val));
 
         $cycle = Cycle::firstOrCreate([
             'name' => $cycleName
@@ -158,7 +164,7 @@ class AddBookService
         return $cycle->id;
     }
 
-    public function getAuthors($val)
+    protected function getAuthors($val)
     {
         $arrAuthor = explode(",", $val);
         $arrAuthorRes = [];
@@ -180,7 +186,7 @@ class AddBookService
         return $arrAuthorRes;
     }
 
-    public function getReaders($val)
+    protected function getReaders($val)
     {
         $arrReader = explode(",", $val);
         $arrReaderRes = [];
@@ -201,21 +207,21 @@ class AddBookService
         return $arrReaderRes;
     }
 
-    public function getAge($val)
+    protected function getAge($val)
     {
         preg_match("/\d+/", $val, $matches);
         return $matches[0];
     }
 
-    public function getTime($val)
+    protected function getTime($val)
     {
         preg_match("/\d{2}:\d{2}:\d{2}/", $val, $matches);
         return $matches[0];
     }
 
-    public function getFiles($html)
+    protected function getFiles($html)
     {
-        // поиск файлов
+        //Обший поиск скриптов на странице
         $scripts = $html->find('[text/javascript]');
 
         $arr = []; // Массив всех скриптов с сайта
@@ -224,22 +230,37 @@ class AddBookService
         }
         $strArr = implode($arr);
 
-        preg_match_all('/"title":"(\d+)","file":"[^"]+"/', $strArr, $match);
-        $files = []; // Готовый массив с файлами
+        preg_match_all('/file:"[^"]+"/', $strArr, $match);
 
-        $count = 1;
-        foreach ($match[0] as $file) {
+        $fileLinkStorage = explode('"', $match[0][0]);
+        $fileLinkStorage = $this->domain.$fileLinkStorage[1];
+
+        // Поиск файла с котором хранится информация. (Особенность сайта)
+        $clientFile = new HtmlWeb();
+        $fileStorage = $clientFile->load($fileLinkStorage);
+
+        $scripts = $fileStorage->find('[text/javascript]');
+
+        $arr = []; // Массив всех скриптов с сайта
+        foreach ($scripts as $item) {
+            array_push($arr, $item);
+        }
+        $strArr = implode($arr);
+
+        preg_match_all('/"title":"[^"]+","file":"[^"]+"/', $strArr, $match);
+
+        $files = []; // Готовый массив с файлами
+        foreach ($match[0] as $key => $file) {
             $file = explode('"', $file);
 
             $fileItem = File::firstOrCreate([
                 'file' => $file
             ], [
                 'file' => $file[7],
-                'title' => $count
+                'title' => $key
             ]);
 
             $files[] = $fileItem->id;
-            $count++;
         }
 
 
