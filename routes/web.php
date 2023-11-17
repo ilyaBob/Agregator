@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\CycleController;
 use App\Http\Controllers\Admin\GenreController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ReaderController;
 use App\Http\Controllers\Frontend\MainController;
 use App\Http\Controllers\Frontend\PageController;
@@ -79,6 +80,12 @@ Route::prefix('admin')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
 
+    });
+
+    Route::group(['prefix' => 'notification', 'controller' => NotificationController::class, 'as' => 'notification.'], function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{id}', 'show')->name('show');
+        Route::delete('/{id}', 'destroy')->name('destroy');
     });
 
 });

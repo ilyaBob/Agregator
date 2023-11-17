@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,6 +17,7 @@ class DatabaseSeeder extends Seeder
             ReaderSeeder::class,
             CycleSeeder::class,
             FileSeeder::class,
+            NotificationSeeder::class,
 
             BookSeeder::class
         ]);
