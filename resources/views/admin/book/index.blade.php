@@ -32,7 +32,7 @@
                                 <a class="btn btn-success" href="{{route('book.create')}}">Добавить</a>
                             </div>
                             <div class="card-body">
-                                <table id="example1" class="table table-bordered table-striped">
+                                <table id="" class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
                                         <th>ID</th>

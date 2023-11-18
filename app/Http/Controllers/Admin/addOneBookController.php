@@ -20,10 +20,13 @@ class addOneBookController extends Controller
 
         foreach ($data['url'] as $url) {
             $res = $serviceAddBook->store($url);
+
+            if (!$res) {
+                continue;
+            }
+
             $serviceAddBook->create($res);
         }
-// https://audiokniga-online.ru/uzhasy-mistika/1563-ruki-polnye-buri.html
-
         return redirect()->back();
     }
 }

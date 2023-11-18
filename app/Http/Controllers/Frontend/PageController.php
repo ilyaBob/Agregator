@@ -12,7 +12,7 @@ class PageController extends Controller
     {
         $genre = Genre::where('slug', $slug)->first();
         $genres = Genre::getGenres();
-        $books = $genre->books()->paginate(10);
+        $books = $genre->books()->orderBy('id', 'DESC')->paginate(10);
 
         return view('frontend.index', compact('genres','genre', 'books'));
     }

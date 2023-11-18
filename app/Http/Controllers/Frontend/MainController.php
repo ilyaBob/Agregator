@@ -10,9 +10,10 @@ class MainController extends Controller
 {
     public function index()
     {
-        $books = Book::query()->paginate(10, ['*'], 'page')->onEachSide(3);
+        $books = Book::query()->orderBy('id', 'DESC')->paginate(10, ['*'], 'page')->onEachSide(3);
         $genres = Genre::getGenres();
 
         return view('frontend.index', compact('books', 'genres'));
     }
 }
+

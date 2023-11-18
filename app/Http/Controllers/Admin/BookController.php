@@ -20,7 +20,7 @@ class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::all();
+        $books = Book::query()->orderBy('id', 'DESC')->get();
 
         return view('admin.book.index', compact('books'));
     }

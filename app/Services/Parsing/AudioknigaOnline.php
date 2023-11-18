@@ -2,21 +2,24 @@
 
 namespace App\Services\Parsing;
 
-use App\Models\Admin\Author;
+use App\Enums\NotificationEnum;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Models\Admin\Book;
-use App\Models\Admin\Cycle;
 use App\Models\Admin\File;
-use App\Models\Admin\Genre;
-use App\Models\Admin\Reader;
+use App\Services\BookService;
 use App\Services\TransliterationService;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use simplehtmldom\HtmlWeb;
 
 class AudioknigaOnline
 {
     public $domain = null;
-    public function findData($url){
+    public $url = null;
 
+    public function findData($url)
+    {
+        $this->url = $url;
         $client = new HtmlWeb();
         $html = $client->load($url);
 
@@ -42,7 +45,7 @@ class AudioknigaOnline
             foreach ($list as $item) {
                 preg_match("/Год:|Автор:|Читает:|Время|Цикл|Жанр:/", $item->plaintext, $match);
 
-                if (empty($match)){
+                if (empty($match)) {
                     continue;
                 }
 
@@ -51,29 +54,29 @@ class AudioknigaOnline
 
                 switch ($key) {
                     case 'Жанр':
-                        $res['genres'] = $this->getGenres($val);
-                        $res['genre_slug'] = $this->getGenreSlug($val);
-                        break;
+                        $res['genres'] = BookService::getOrCreateGenre($val);
+                        $res['genre_slug'] = BookService::getGenreSlug($res['genres'][0]);
 
+                        break;
                     case 'Цикл':
-                        $res["cycle_number"] = $this->getCycle($val);
-                        $res["cycle_id"] = $this->getCycleName($val);
+                        $res["cycle_number"] = BookService::getCycleNumber($val);
+                        $res["cycle_id"] = BookService::getOrCreateCycle($val);
                         break;
 
                     case 'Автор':
-                        $res['authors'] = $this->getAuthors($val);
+                        $res['authors'] = BookService::getOrCreateAuthors($val);
                         break;
 
                     case 'Читает':
-                        $res['readers'] = $this->getReaders($val);
+                        $res['readers'] = BookService::getOrCreateReaders($val);
                         break;
 
                     case 'Год':
-                        $res['age'] = $this->getAge($val);
+                        $res['age'] = BookService::getAge($val);
                         break;
 
                     case 'Время':
-                        $res['time'] = $this->getTime($val);
+                        $res['time'] = BookService::getTime($val);
                         break;
 
                     default:
@@ -85,140 +88,31 @@ class AudioknigaOnline
             $res["description"] = $description;
             $res["title"] = $title;
             $res["slug"] = TransliterationService::generateSlug($title);
-            $res["image"] = $this->domain.$image;
+            $res["image"] = $this->domain . $image;
             $res['files'] = $this->getFiles($html);
             $res['link_to_original'] = $url;
             $res['is_active'] = '1';
+
+            foreach ($res as $key => $attribute){
+                if(empty($attribute) && $key != 'cycle_number'){
+                    throw new Exception("Не найдено $key". $this->getMessageUrl($url));
+                }
+            }
 
             DB::commit();
 
             return $res;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollback();
-            abort(404);
+            NotificationController::create('Критическая ошибка', $e->getMessage(), NotificationEnum::TYPE_ERROR);
+            return false;
         }
     }
 
-    protected function getGenres($val)
-    {
-        $arrGenre = explode(",", $val);
-        $arrGenreRes = [];
-
-        foreach ($arrGenre as $genre) {
-            $genre = trim($genre);
-
-            $genreItem = Genre::firstOrCreate([
-                'name' => $genre
-            ], [
-                'name' => $genre,
-                'slug' => TransliterationService::generateSlug($genre),
-                'is_active' => '1'
-            ]);
-
-            $arrGenreRes[] = $genreItem->id;
-        }
-
-        return $arrGenreRes;
-    }
-
-    protected function getGenreSlug($val)
-    {
-        $arrGenre = explode(",", $val);
-        $arrGenreRes = [];
-
-        foreach ($arrGenre as $genre) {
-            $genre = trim($genre);
-
-            $genreItem = Genre::firstOrCreate([
-                'name' => $genre
-            ], [
-                'name' => $genre,
-                'slug' => TransliterationService::generateSlug($genre),
-                'is_active' => '1'
-            ]);
-
-            return $genreItem->slug;
-        }
-    }
-
-    protected function getCycle($val)
-    {
-        preg_match("/№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]/", $val, $match);
-        return str_replace("№", "", $match[0]);
-    }
-
-    protected function getCycleName($val)
-    {
-        preg_match("/№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]/", $val, $match);
-        $cycleName = trim(str_replace([$match[0], '»', '«' , '()' ], "", $val));
-
-        $cycle = Cycle::firstOrCreate([
-            'name' => $cycleName
-        ], [
-            'name' => $cycleName,
-            'slug' => TransliterationService::generateSlug($cycleName),
-            'is_active' => '1'
-        ]);
-
-        return $cycle->id;
-    }
-
-    protected function getAuthors($val)
-    {
-        $arrAuthor = explode(",", $val);
-        $arrAuthorRes = [];
-
-        foreach ($arrAuthor as $author) {
-            $author = trim($author);
-
-            $authorItem = Author::firstOrCreate([
-                'name' => $author
-            ], [
-                'name' => $author,
-                'slug' => TransliterationService::generateSlug($author),
-                'is_active' => '1'
-            ]);
-
-            $arrAuthorRes[] = $authorItem->id;
-        }
-
-        return $arrAuthorRes;
-    }
-
-    protected function getReaders($val)
-    {
-        $arrReader = explode(",", $val);
-        $arrReaderRes = [];
-
-        foreach ($arrReader as $reader) {
-            $reader = trim($reader);
-
-            $readerItem = Reader::firstOrCreate([
-                'name' => $reader
-            ], [
-                'name' => $reader,
-                'slug' => TransliterationService::generateSlug($reader),
-                'is_active' => '1'
-            ]);
-
-            $arrReaderRes[] = $readerItem->id;
-        }
-        return $arrReaderRes;
-    }
-
-    protected function getAge($val)
-    {
-        preg_match("/\d+/", $val, $matches);
-        return $matches[0];
-    }
-
-    protected function getTime($val)
-    {
-        preg_match("/\d{2}:\d{2}:\d{2}/", $val, $matches);
-        return $matches[0];
-    }
-
+    /**
+     * @throws Exception
+     */
     protected function getFiles($html)
     {
         //Обший поиск скриптов на странице
@@ -232,8 +126,12 @@ class AudioknigaOnline
 
         preg_match_all('/file:"[^"]+"/', $strArr, $match);
 
+        if(empty($match[0][0])){
+            throw new Exception("Не найдено файлов". $this->getMessageUrl($this->url));
+        }
+
         $fileLinkStorage = explode('"', $match[0][0]);
-        $fileLinkStorage = $this->domain.$fileLinkStorage[1];
+        $fileLinkStorage = $this->domain . $fileLinkStorage[1];
 
         // Поиск файла с котором хранится информация. (Особенность сайта)
         $clientFile = new HtmlWeb();
@@ -265,5 +163,10 @@ class AudioknigaOnline
 
 
         return $files;
+    }
+
+    protected function getMessageUrl($url): string
+    {
+        return " (Ссылка: $url)";
     }
 }

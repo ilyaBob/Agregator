@@ -11,9 +11,9 @@ class NotificationController extends Controller
     public function index()
     {
         if (request()->type) {
-            $notifications = Notification::query()->where('type', request()->type)->paginate(10);
+            $notifications = Notification::query()->orderBy('id','DESC')->where('type', request()->type)->paginate(10);
         } else {
-            $notifications = Notification::query()->paginate(10);
+            $notifications = Notification::query()->orderBy('id','DESC')->paginate(10);
         }
 
         return view('admin.notification.index', compact('notifications'));
