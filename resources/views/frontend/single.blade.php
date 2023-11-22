@@ -35,26 +35,24 @@ use App\Enums\SettingEnum;
 
                 <div class="page__subcol-side">
                     <div class="pmovie__poster img-fit-cover">
-{{--                        <img src="{{ url('storage/'. $book->image) }}" alt="{{ $book->title }}">--}}
                         <img src="{{$book->image}}" alt="{{ $book->title }}">
-
                     </div>
                 </div>
-
-                <!-- END PAGE SUBCOL SIDE -->
 
                 <header class="page__subcol-main flex-grow-1 d-flex fd-column">
 
                     <ul class="pmovie__header-list">
-                        <li>
-                            <div>Год:</div>{{$book->age}}
-                        </li>
+                        @if (!empty($book->age))
+                            <li>
+                                <div>Год:</div>{{$book->age}}
+                            </li>
+                        @endif
                         <li>
                             <div>Автор:</div>
                             @foreach($book->authors as $index => $author)
                                 <a href="#">{{$author->name}}</a>
                                 @if ($index != count($book->authors) - 1) , @endif
-                        @endforeach
+                            @endforeach
                         <li>
                             <div>Читает:</div>
                             @foreach($book->readers as $index => $reader)

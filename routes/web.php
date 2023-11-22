@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\CycleController;
 use App\Http\Controllers\Admin\GenreController;
+use App\Http\Controllers\Admin\ImportController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ReaderController;
 use App\Http\Controllers\Frontend\MainController;
@@ -79,7 +80,12 @@ Route::prefix('admin')->group(function () {
     Route::group(['prefix' => 'add-one', 'controller' => addOneBookController::class, 'as' => 'add-one.'], function(){
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
+    });
 
+    Route::group(['prefix' => 'import', 'controller' => ImportController::class, 'as' => 'import.'], function(){
+        Route::get('/', 'index')->name('index');
+        Route::get('/export', 'export')->name('export');
+        Route::post('/', 'store')->name('store');
     });
 
     Route::group(['prefix' => 'notification', 'controller' => NotificationController::class, 'as' => 'notification.'], function () {

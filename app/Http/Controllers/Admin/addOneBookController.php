@@ -19,13 +19,13 @@ class addOneBookController extends Controller
         $serviceAddBook = new AutoCreateBookService();
 
         foreach ($data['url'] as $url) {
-            $res = $serviceAddBook->store($url);
+            $dataUrl = $serviceAddBook->store($url);
 
-            if (!$res) {
+            if (!$dataUrl) {
                 continue;
             }
 
-            $serviceAddBook->create($res);
+            $serviceAddBook->create($dataUrl);
         }
         return redirect()->back();
     }

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Admin\Author;
 use App\Models\Admin\Book;
 use App\Models\Admin\Cycle;
+use App\Models\Admin\File;
 use App\Models\Admin\Genre;
 use App\Models\Admin\Reader;
 
@@ -17,10 +18,15 @@ class BookService
         $authors = $data['authors'];
         $readers = $data['readers'];
         $genres = $data['genres'];
+        $files = $data['files'];
 
         unset($data['authors']);
         unset($data['readers']);
         unset($data['genres']);
+
+        if(isset($files)){
+            unset($data['files']);
+        }
 
         if (!isset($data['cycle_number'])) {
             unset($data['cycle_number']);
@@ -31,6 +37,10 @@ class BookService
         $book->authors()->attach($authors);
         $book->readers()->attach($readers);
         $book->genres()->attach($genres);
+
+        if(isset($files)){
+            $book->files()->attach($files);
+        }
 
         return null;
     }
@@ -110,7 +120,12 @@ class BookService
     public static function getTime(string $string): string
     {
         preg_match("/\d{2}:\d{2}:\d{2}/", $string, $matches);
-        return $matches[0];
+
+        if(isset($matches[0])){
+            return $matches[0];
+        }
+        return '';
+
     }
 
     /**
@@ -173,7 +188,7 @@ class BookService
      *
      * @param string $string The input string containing integer or string input in the format "№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]"
      */
-    public static function getCycleNumber(string $string)
+    public static function getCycleNumber(string $string = null)
     {
         preg_match("/№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]/", $string, $match);
 
@@ -214,9 +229,8 @@ class BookService
      * This function takes a string input in the format "val" and returns a string input in the format "val"
      *
      * @param string $string The input string containing age
-     * @return integer
      */
-    public static function getAge(string $string): int
+    public static function getAge(string $string = null)
     {
         preg_match("/\d+/", $string, $matches);
 
@@ -224,6 +238,39 @@ class BookService
             return $matches[0];
         }
 
-        return false;
+        return null;
+    }
+
+    /**
+     * This function takes a string input in the format "val1,val2,val3" and returns an array of files ids.
+     *
+     * @param string $string The input string containing files names separated by commas
+     * @return array  An array of files ids
+     */
+    public static function getOrCreateFiles(string $string): array
+    {
+        $arrFiles = explode(",", $string);
+        $arrFilesRes = [];
+        $count = 1;
+
+        foreach ($arrFiles as $file) {
+            $file = trim($file);
+
+            $fileItem = File::firstOrCreate([
+                'file' => $file
+            ], [
+                'file' => $file,
+                'title' => $count
+            ]);
+            $count++;
+            $arrFilesRes[] = $fileItem->id;
+        }
+
+        return $arrFilesRes;
+    }
+
+    public static function getMessageUrl($url): string
+    {
+        return " (Ссылка: $url)";
     }
 }

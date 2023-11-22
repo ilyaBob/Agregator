@@ -42,6 +42,15 @@ class AudioknigaOnline
         try {
             $res = [];
 
+            $res['genres'] = null;
+            $res['genre_slug'] = null;
+            $res["cycle_number"] = null;
+            $res["cycle_id"] = null;
+            $res['authors'] = null;
+            $res['readers'] = null;
+            $res['age'] = null;
+            $res['time'] = null;
+
             foreach ($list as $item) {
                 preg_match("/Год:|Автор:|Читает:|Время|Цикл|Жанр:/", $item->plaintext, $match);
 
@@ -94,7 +103,7 @@ class AudioknigaOnline
             $res['is_active'] = '1';
 
             foreach ($res as $key => $attribute){
-                if(empty($attribute) && $key != 'cycle_number'){
+                if(empty($attribute) && ($key != 'cycle_number' && $key != 'age')){
                     throw new Exception("Не найдено $key". $this->getMessageUrl($url));
                 }
             }
