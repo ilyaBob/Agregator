@@ -60,7 +60,7 @@
                                     </button>
                                 </div>
                                 <div class="mailbox-read-message">
-                                    {{$notification->description}}
+                                    {!!  $notification->description !!}
                                 </div>
                             </div>
 

@@ -8,6 +8,9 @@ use App\Models\Admin\Cycle;
 use App\Models\Admin\File;
 use App\Models\Admin\Genre;
 use App\Models\Admin\Reader;
+use App\Rules\isCycle;
+use Exception;
+use Illuminate\Support\Facades\Validator;
 
 class BookService
 {
@@ -18,7 +21,6 @@ class BookService
         $authors = $data['authors'];
         $readers = $data['readers'];
         $genres = $data['genres'];
-
         if (isset($data['files'])) {
             $files = $data['files'];
         }
@@ -27,7 +29,7 @@ class BookService
         unset($data['readers']);
         unset($data['genres']);
 
-        if(isset($files)){
+        if (isset($files)) {
             unset($data['files']);
         }
 
@@ -41,7 +43,7 @@ class BookService
         $book->readers()->attach($readers);
         $book->genres()->attach($genres);
 
-        if(isset($files)){
+        if (isset($files)) {
             $book->files()->attach($files);
         }
 
@@ -124,7 +126,7 @@ class BookService
     {
         preg_match("/\d{2}:\d{2}:\d{2}/", $string, $matches);
 
-        if(isset($matches[0])){
+        if (isset($matches[0])) {
             return $matches[0];
         }
         return '';
@@ -191,7 +193,7 @@ class BookService
      *
      * @param string $string The input string containing integer or string input in the format "№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]"
      */
-    public static function getCycleNumber(string $string = null)
+    public static function getCycleNumber(string $string)
     {
         preg_match("/№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]/", $string, $match);
 
@@ -207,25 +209,27 @@ class BookService
      * @param string $string The input string containing cycle name
      * @return integer Cycle id
      */
-    public static function getOrCreateCycle(string $string): int
+    public static function getOrCreateCycle(string $string = null): ?int
     {
+        if (isset($string)) {
+            preg_match("/№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]/", $string, $match);
+            if ($match) {
+                $cycleName = trim(str_replace([$match[0], '»', '«', '()'], "", $string));
+            } else {
+                $cycleName = trim(str_replace(['»', '«', '()'], "", $string));
+            }
 
-        preg_match("/№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]/", $string, $match);
-        if($match){
-            $cycleName = trim(str_replace([$match[0], '»', '«', '()'], "", $string));
-        }else{
-            $cycleName = trim(str_replace(['»', '«', '()'], "", $string));
+            $cycle = Cycle::firstOrCreate([
+                'name' => $cycleName
+            ], [
+                'name' => $cycleName,
+                'slug' => TransliterationService::generateSlug($cycleName),
+                'is_active' => '1'
+            ]);
+
+            return $cycle->id;
         }
-
-        $cycle = Cycle::firstOrCreate([
-            'name' => $cycleName
-        ], [
-            'name' => $cycleName,
-            'slug' => TransliterationService::generateSlug($cycleName),
-            'is_active' => '1'
-        ]);
-
-        return $cycle->id;
+        return null;
     }
 
     /**
@@ -272,8 +276,23 @@ class BookService
         return $arrFilesRes;
     }
 
-    public static function getMessageUrl($url): string
+    public static function validate(array $data)
     {
-        return " (Ссылка: $url)";
+        return Validator::make($data, [
+            'title' => 'required|string|max:255',
+            'link_to_original' => 'required|string|max:255|url',
+            'is_active' => 'required|integer|max:1',
+            'age' => 'nullable|numeric|min:1990|max:' . date('Y'),
+            'time' => 'required|string|max:9|regex:/^(?:[0-9]{1,3}:)?[0-5]?[0-9]:[0-5][0-9]$/',
+            'cycle' => 'nullable|string',
+            'cycle_number' => [new isCycle()],
+            'description' => 'required|string|max:50000',
+            'image' => 'required|url',
+
+            'authors' => 'required|string',
+            'readers' => 'required|string',
+            'genres' => 'required|string',
+            'files' => 'required|string',
+        ]);
     }
 }

@@ -4,24 +4,22 @@ namespace App\Imports;
 
 use App\Enums\NotificationEnum;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Requests\StoreBookRequest;
 use App\Models\Admin\Book;
+use App\Rules\isCycle;
+use App\Rules\IsCycleId;
 use App\Services\BookService;
 use App\Services\TransliterationService;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class BookImport implements ToCollection, WithHeadingRow
 {
-    /**
-     * @param array $row
-     *
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
-
-    public function collection(Collection $collection)
+    public function collection(Collection $collection): void
     {
         foreach ($collection as $row) {
             if (!isset($row['title'])) {
@@ -38,9 +36,16 @@ class BookImport implements ToCollection, WithHeadingRow
             $data = [];
 
             try {
+                $validator = BookService::validate($row->toArray());
+
+                if ($validator->fails()) {
+                    $errors = $validator->errors();
+                    $errors = implode('<br>', $errors->all());
+                    throw new Exception($errors);
+                }
+
                 $data['title'] = $row['title'];
                 $data['description'] = $row['description'];
-                $data['slug'] = TransliterationService::generateSlug($row['title']);
                 $data['image'] = $row['image'];
                 $data['files'] = BookService::getOrCreateFiles($row['files']);
                 $data['link_to_original'] = $row['link_to_original'];
@@ -54,18 +59,12 @@ class BookImport implements ToCollection, WithHeadingRow
                 $data['age'] = BookService::getAge($row['age']);
                 $data['time'] = BookService::getTime($row['time']);
 
-                foreach ($data as $key => $attribute) {
-                    if (empty($attribute) && ($key != 'cycle_number' && $key != 'age'))  {
-                        throw new Exception("Не найдено: $key" . BookService::getMessageUrl($data['link_to_original']));
-                    }
-                }
-
                 BookService::store($data);
 
                 DB::commit();
-            } catch (\Exception $e) {
-                NotificationController::create('Критическая ошибка', $e->getMessage(), NotificationEnum::TYPE_ERROR);
+            } catch (Exception $e) {
                 DB::rollBack();
+                NotificationController::create('Критическая ошибка у книги "' . $row['title'] . '"', $e->getMessage(), NotificationEnum::TYPE_ERROR);
             }
         }
     }
