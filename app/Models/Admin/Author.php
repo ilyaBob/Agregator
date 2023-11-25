@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $name
  * @property string $slug
  * @property integer $is_active
+ *
+ * @property Book $books
  */
 class Author extends Model
 {

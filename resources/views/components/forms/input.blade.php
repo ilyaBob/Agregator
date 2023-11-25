@@ -4,7 +4,7 @@
     @endif
     <input
         type="{{$type}}"
-        name="{{$name}}@if($multiple)[]@endif;"
+        name="{{$name}}@if($multiple)[]@endif"
         class="form-control {{$class}} {{($errors->has($name)? 'is-invalid': false)}}"
 
         @if($id)

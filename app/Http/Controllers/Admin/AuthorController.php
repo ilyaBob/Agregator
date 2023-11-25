@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\MassageEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAuthorRequest;
 use App\Http\Requests\UpdateAuthorRequest;
@@ -52,7 +53,12 @@ class AuthorController extends Controller
 
     public function destroy(Author $id)
     {
+        if (!empty($id->books)) {
+            return redirect()->back()->with(MassageEnum::TYPE_ERROR, 'К данному автору "'.$id->name.'" привязанны книги, для начала удалите их');
+        }
+
         $id->delete();
+
         return redirect()->back();
     }
 }

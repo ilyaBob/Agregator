@@ -18,7 +18,10 @@ class BookService
         $authors = $data['authors'];
         $readers = $data['readers'];
         $genres = $data['genres'];
-        $files = $data['files'];
+
+        if (isset($data['files'])) {
+            $files = $data['files'];
+        }
 
         unset($data['authors']);
         unset($data['readers']);
