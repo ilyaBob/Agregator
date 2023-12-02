@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Filters\BookFilter;
+use App\Http\Requests\FilterRequest;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Models\Admin\Author;
@@ -11,17 +13,16 @@ use App\Models\Admin\Cycle;
 use App\Models\Admin\Genre;
 use App\Models\Admin\Reader;
 use App\Services\BookService;
-use App\Services\TransliterationService;
+use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use mysql_xdevapi\Exception;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(FilterRequest $request)
     {
-        $books = Book::query()->orderBy('id', 'DESC')->get();
-
+        $data = $request->validated();
+        $filter = app()->make(BookFilter::class, ['queryParams' => array_filter($data)]);
+        $books = Book::query()->orderBy('id', 'DESC')->filter($filter)->get();
         return view('admin.book.index', compact('books'));
     }
 

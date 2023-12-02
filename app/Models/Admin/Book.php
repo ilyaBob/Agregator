@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin;
 
+use App\Models\Traits\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -32,6 +33,7 @@ use mysql_xdevapi\Collection;
 class Book extends Model
 {
     use HasFactory;
+    use Filterable;
     use SoftDeletes;
 
     protected $with = ['authors'];

@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Enums\NotificationEnum;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Requests\StoreBookRequest;
+use App\Jobs\BookImportJob;
 use App\Models\Admin\Book;
 use App\Rules\isCycle;
 use App\Rules\IsCycleId;
@@ -32,40 +33,7 @@ class BookImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            DB::beginTransaction();
-            $data = [];
-
-            try {
-                $validator = BookService::validate($row->toArray());
-
-                if ($validator->fails()) {
-                    $errors = $validator->errors();
-                    $errors = implode('<br>', $errors->all());
-                    throw new Exception($errors);
-                }
-
-                $data['title'] = $row['title'];
-                $data['description'] = $row['description'];
-                $data['image'] = $row['image'];
-                $data['files'] = BookService::getOrCreateFiles($row['files']);
-                $data['link_to_original'] = $row['link_to_original'];
-                $data['is_active'] = $row['is_active'];
-                $data['genres'] = BookService::getOrCreateGenre($row['genres']);
-                $data['genre_slug'] = BookService::getGenreSlug($data['genres'][0]);
-                $data['cycle_number'] = BookService::getCycleNumber($row['cycle_number']);
-                $data['cycle_id'] = BookService::getOrCreateCycle($row['cycle']);
-                $data['authors'] = BookService::getOrCreateAuthors($row['authors']);
-                $data['readers'] = BookService::getOrCreateReaders($row['readers']);
-                $data['age'] = BookService::getAge($row['age']);
-                $data['time'] = BookService::getTime($row['time']);
-
-                BookService::store($data);
-
-                DB::commit();
-            } catch (Exception $e) {
-                DB::rollBack();
-                NotificationController::create('Критическая ошибка у книги "' . $row['title'] . '"', $e->getMessage(), NotificationEnum::TYPE_ERROR);
-            }
+            BookImportJob::dispatch($row);
         }
     }
 }

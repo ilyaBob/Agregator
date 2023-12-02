@@ -6,7 +6,6 @@
         type="{{$type}}"
         name="{{$name}}@if($multiple)[]@endif"
         class="form-control {{$class}} {{($errors->has($name)? 'is-invalid': false)}}"
-
         @if($id)
             id="{{$id}}"
         @endif
@@ -15,8 +14,7 @@
             placeholder="{{$placeholder}}"
         @endif
         value="{{ old($name, $value) }}"
-        {{$disabled}}
-    >
+        {{$disabled}} >
 </div>
 @error($name)
     <div class="alert alert-danger">{{ $message }}</div>

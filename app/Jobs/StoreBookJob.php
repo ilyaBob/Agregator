@@ -30,7 +30,12 @@ class StoreBookJob implements ShouldQueue
     public function handle(): void
     {
         $serviceAddBook = new AutoCreateBookService();
-        $res = $serviceAddBook->store($this->url);
-        $serviceAddBook->create($res);
+        $dataUrl = $serviceAddBook->store($this->url);
+
+
+
+        if ($dataUrl) {
+            $serviceAddBook->create($dataUrl);
+        }
     }
 }
