@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#303d4a">
     <link rel="icon" href="images/favicon.png" type="image/png">
-<body>
+<body class="modal-is-opened">
 
 <div class="wrapper">
 
@@ -36,32 +36,34 @@
                 <li><a href="/"><span class="fal fa-home"></span>Главная</a></li>
                 <li><a href="/authors.html"><span class="fal fa-book"></span>Авторы</a></li>
                 <li><a href="/voiced.html"><span class="fal fa-volume-up"></span>Исполнители</a></li>
+                @can('view', auth()->user())
+                <li><a style="color: #fdc01c" href="{{route('admin.index')}}">Админка</a></li>
+                @endcan
             </ul>
             <div class="header__btn-search btn-icon js-toggle-search"><span class="fal fa-search"></span></div>
-            <div class="btn-accent centered-content js-show-login">Войти</div>
+
+            @if(!auth()->user())
+                <div class="btn-accent centered-content js-show-login">Войти</div>
+            @else
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button style="background: none" type="submit" class="btn-accent centered-content logout">Выйти</button>
+                </form>
+            @endif
+
 
             <div class="header__btn-menu d-none js-show-mobile-menu"><span class="fal fa-bars"></span></div>
         </header>
 
-        <!-- END HEADER -->
-
         <div class="content flex-grow-1 cols d-flex">
-
             @if(isset($books))
                 @include('includes.frontend.carousel')
             @endif
 
             @include('includes.frontend.aside')
 
-            <!-- END COL SIDE -->
-
-
             @yield('container')
-
-
         </div>
-
-        <!-- END CONTENT -->
 
         <footer class="footer d-flex ai-center">
             <a href="https://fantworld.net/pravoobladatelyam.html"
@@ -70,29 +72,11 @@
             <div class="footer__text flex-grow-1">
                 © 2023 "Fantworld.net" Лучшие фантастические аудиокниги рунета слушать онлайн
             </div>
-            <div class="footer__counter">
-                <!--LiveInternet counter--><a href="https://www.liveinternet.ru/click" target="_blank"><img
-                        id="licntAD50" width="88" height="31" style="border:0"
-                        title="LiveInternet: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня"
-                        src="hit" alt=""></a>
-                <script>(function (d, s) {
-                        d.getElementById("licntAD50").src =
-                            "https://counter.yadro.ru/hit?t12.6;r" + escape(d.referrer) +
-                            ((typeof (s) == "undefined") ? "" : ";s" + s.width + "*" + s.height + "*" +
-                                (s.colorDepth ? s.colorDepth : s.pixelDepth)) + ";u" + escape(d.URL) +
-                            ";h" + escape(d.title.substring(0, 150)) + ";" + Math.random()
-                    })
-                    (document, screen)</script><!--/LiveInternet-->
-            </div>
         </footer>
-
-        <!-- END FOOTER -->
-
     </div>
-
-    <!-- END WRAPPER-MAIN -->
-
 </div>
+
+@include('includes.frontend.login-form')
 
 <style>
     .notaval {
@@ -107,5 +91,8 @@
     }
 </style>
 
+<!-- jQuery -->
+<script src="{{asset('plugins/jquery/jquery.min.js')}}"></script>
+<script src="{{asset('/scripts/frontend.js')}}"> </script>
 </body>
 </html>
