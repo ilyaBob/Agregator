@@ -23,7 +23,7 @@ class StoreAuthorRequest extends FormRequest
     {
         return [
             'name' => 'required|string',
-            'is_active' => 'boolean'
+            'is_active' => 'integer|min:0|max:1'
         ];
     }
 }
