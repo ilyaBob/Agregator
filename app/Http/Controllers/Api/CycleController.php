@@ -2,35 +2,34 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\MassageEnum;
-use App\Http\Requests\StoreAuthorRequest;
-use App\Http\Requests\UpdateAuthorRequest;
-use App\Http\Resources\AuthorResource;
-use App\Models\Admin\Author;
+use App\Http\Requests\StoreCycleRequest;
+use App\Http\Requests\UpdateCycleRequest;
+use App\Http\Resources\CycleResource;
+use App\Models\Admin\Cycle;
 use App\Services\TransliterationService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class AuthorController extends BaseApiController
+class CycleController extends BaseApiController
 {
     public function index()
     {
-        $authors = Author::with('books')->paginate($this->perPage, ['*'], 'page', $this->page);
+        $cycles = Cycle::with('books')->paginate($this->perPage, ['*'], 'page', $this->page);
 
-        return AuthorResource::collection($authors);
+        return CycleResource::collection($cycles);
     }
 
-    public function create(StoreAuthorRequest $request)
+    public function create(StoreCycleRequest $request)
     {
         DB::beginTransaction();
         try {
             $data = $request->validated();
             $data['slug'] = TransliterationService::generateSlug($data['name']);
-            $author = Author::create($data);
+            $cycle = Cycle::create($data);
 
             DB::commit();
 
-            return AuthorResource::make($author);
+            return CycleResource::make($cycle);
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -38,22 +37,22 @@ class AuthorController extends BaseApiController
         }
     }
 
-    public function show(Author $id)
+    public function show(Cycle $id)
     {
-        return AuthorResource::make($id);
+        return CycleResource::make($id);
     }
 
-    public function update(UpdateAuthorRequest $request, Author $id)
+    public function update(UpdateCycleRequest $request, Cycle $id)
     {
         DB::beginTransaction();
         try {
             $data = $request->validated();
             $id->update($data);
-            $author = $id;
+            $cycle = $id;
 
             DB::commit();
 
-            return AuthorResource::make($author);
+            return CycleResource::make($cycle);
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -61,12 +60,12 @@ class AuthorController extends BaseApiController
         }
     }
 
-    public function delete(Author $id)
+    public function delete(Cycle $id)
     {
         DB::beginTransaction();
         try {
             if (!empty($id->books[0])) {
-                throw new Exception('К данному жанру "' . $id->name . '" привязанны книги, для начала удалите их');
+                throw new Exception('К данному циклу "' . $id->name . '" привязанны книги, для начала удалите их');
             }
 
             $id->delete();

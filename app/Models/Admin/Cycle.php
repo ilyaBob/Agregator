@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
+ * @property integer $id
+ * @property integer $is_active
  * @property string $name
  * @property string $slug
- * @property integer $is_active
+ * @property string created_at
  *
  * @property object|Book $books
  */

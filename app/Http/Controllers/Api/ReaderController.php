@@ -2,35 +2,34 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\MassageEnum;
-use App\Http\Requests\StoreAuthorRequest;
-use App\Http\Requests\UpdateAuthorRequest;
-use App\Http\Resources\AuthorResource;
-use App\Models\Admin\Author;
+use App\Http\Requests\StoreReaderRequest;
+use App\Http\Requests\UpdateReaderRequest;
+use App\Http\Resources\ReaderResource;
+use App\Models\Admin\Reader;
 use App\Services\TransliterationService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class AuthorController extends BaseApiController
+class ReaderController extends BaseApiController
 {
     public function index()
     {
-        $authors = Author::with('books')->paginate($this->perPage, ['*'], 'page', $this->page);
+        $readers = Reader::with('books')->paginate($this->perPage, ['*'], 'page', $this->page);
 
-        return AuthorResource::collection($authors);
+        return ReaderResource::collection($readers);
     }
 
-    public function create(StoreAuthorRequest $request)
+    public function create(StoreReaderRequest $request)
     {
         DB::beginTransaction();
         try {
             $data = $request->validated();
             $data['slug'] = TransliterationService::generateSlug($data['name']);
-            $author = Author::create($data);
+            $reader = Reader::create($data);
 
             DB::commit();
 
-            return AuthorResource::make($author);
+            return ReaderResource::make($reader);
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -38,22 +37,22 @@ class AuthorController extends BaseApiController
         }
     }
 
-    public function show(Author $id)
+    public function show(Reader $id)
     {
-        return AuthorResource::make($id);
+        return ReaderResource::make($id);
     }
 
-    public function update(UpdateAuthorRequest $request, Author $id)
+    public function update(UpdateReaderRequest $request, Reader $id)
     {
         DB::beginTransaction();
         try {
             $data = $request->validated();
             $id->update($data);
-            $author = $id;
+            $reader = $id;
 
             DB::commit();
 
-            return AuthorResource::make($author);
+            return ReaderResource::make($reader);
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -61,12 +60,12 @@ class AuthorController extends BaseApiController
         }
     }
 
-    public function delete(Author $id)
+    public function delete(Reader $id)
     {
         DB::beginTransaction();
         try {
             if (!empty($id->books[0])) {
-                throw new Exception('К данному жанру "' . $id->name . '" привязанны книги, для начала удалите их');
+                throw new Exception('К данному чтецу "' . $id->name . '" привязанны книги, для начала удалите их');
             }
 
             $id->delete();
