@@ -2,34 +2,34 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\StoreReaderRequest;
-use App\Http\Requests\UpdateReaderRequest;
-use App\Http\Resources\ReaderResource;
-use App\Models\Admin\Reader;
+use App\Http\Requests\StoreBookRequest;
+use App\Http\Requests\UpdateBookRequest;
+use App\Http\Resources\BookResource;
+use App\Models\Admin\Book;
+use App\Services\BookService;
 use App\Services\TransliterationService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class ReaderController extends BaseApiController
+class BookController extends BaseApiController
 {
     public function index()
     {
-        $readers = Reader::with('books')->paginate($this->perPage, ['*'], 'page', $this->page);
+        $books = Book::with(['genres', 'authors', 'readers'])->paginate($this->perPage, ['*'], 'page', $this->page);
 
-        return ReaderResource::collection($readers);
+        return BookResource::collection($books);
     }
 
-    public function create(StoreReaderRequest $request)
+    public function create(StoreBookRequest $request)
     {
         DB::beginTransaction();
         try {
             $data = $request->validated();
-            $data['slug'] = TransliterationService::generateSlug($data['name']);
-            $reader = Reader::create($data);
+            $book = BookService::store($data);
 
             DB::commit();
 
-            return ReaderResource::make($reader);
+            return BookResource::make($book);
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -37,24 +37,23 @@ class ReaderController extends BaseApiController
         }
     }
 
-    public function show(Reader $id)
+    public function show(Book $id)
     {
-        $reader = $id->load('books');
-
-        return ReaderResource::make($reader);
+        $book = $id->load(['genres', 'authors', 'readers']);
+        return BookResource::make($book);
     }
 
-    public function update(UpdateReaderRequest $request, Reader $id)
+    public function update(UpdateBookRequest $request, Book $id)
     {
         DB::beginTransaction();
         try {
             $data = $request->validated();
             $id->update($data);
-            $reader = $id;
+            $book = $id;
 
             DB::commit();
 
-            return ReaderResource::make($reader);
+            return BookResource::make($book);
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -62,7 +61,7 @@ class ReaderController extends BaseApiController
         }
     }
 
-    public function delete(Reader $id)
+    public function delete(Book $id)
     {
         DB::beginTransaction();
         try {

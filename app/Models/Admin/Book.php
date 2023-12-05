@@ -19,6 +19,7 @@ use mysql_xdevapi\Collection;
  * @property string $time
  * @property integer $is_active
  * @property integer $age
+ * @property integer $cycle_id
  * @property integer $cycle_number
  * @property string $genre_slug
  * @property string $link_to_original
@@ -35,8 +36,6 @@ class Book extends Model
     use HasFactory;
     use Filterable;
     use SoftDeletes;
-
-    protected $with = ['authors'];
 
     protected $guarded = [];
 

@@ -23,7 +23,7 @@ class GenreResource extends JsonResource
             'isActive' => $this->is_active,
             'slug' => $this->slug,
             'createdAt' => Carbon::parse($this->created_at)->toDateString(),
-            'books' => BookResource::collection($this->books)
+            'books' => BookResource::collection($this->whenLoaded('books'))
         ];
     }
 }

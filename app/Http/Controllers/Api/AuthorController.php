@@ -40,7 +40,9 @@ class AuthorController extends BaseApiController
 
     public function show(Author $id)
     {
-        return AuthorResource::make($id);
+        $author = $id->load('books');
+
+        return AuthorResource::make($author);
     }
 
     public function update(UpdateAuthorRequest $request, Author $id)

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthorController;
+use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\CycleController;
 use App\Http\Controllers\Api\GenreController;
 use App\Http\Controllers\Api\ReaderController;
@@ -79,4 +80,15 @@ Route::group(['prefix' => 'cycle', 'controller' => CycleController::class], func
     });
 });
 
+// Books
+Route::group(['prefix' => 'book', 'controller' => BookController::class], function () {
+    Route::get('', 'index');
+    Route::get('/{id}', 'show');
+
+    Route::group(['middleware' => ['auth', 'admin']], function () {
+        Route::post('/create', 'create');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'delete');
+    });
+});
 

@@ -18,14 +18,13 @@ class AuthorResource extends JsonResource
     public function toArray(Request $request): array
     {
         /** @var Author $this */
-
         return [
             'id' => $this->id,
             'name' => $this->name,
             'isActive' => $this->is_active,
             'slug' => $this->slug,
             'createdAt' => Carbon::parse($this->created_at)->toDateString(),
-            'books' => BookResource::collection($this->books)
+            'books' => BookResource::collection($this->whenLoaded('books'))
         ];
     }
 }

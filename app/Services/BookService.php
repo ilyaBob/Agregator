@@ -47,7 +47,7 @@ class BookService
             $book->files()->attach($files);
         }
 
-        return null;
+        return $book;
     }
 
     public static function update($id, $data): void

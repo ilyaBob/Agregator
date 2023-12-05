@@ -40,7 +40,9 @@ class GenreController extends BaseApiController
 
     public function show(Genre $id)
     {
-        return GenreResource::make($id);
+        $genre = $id->load('books');
+
+        return GenreResource::make($genre);
     }
 
     public function update(UpdateGenreRequest $request, Genre $id)
