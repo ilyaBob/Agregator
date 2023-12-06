@@ -33,27 +33,26 @@ class NotificationController extends Controller
     {
         $notification = $id;
 
-        DB::beginTransaction();
-        try {
-            if ($notification->is_new = 1) {
+        if ($notification->is_new = 1) {
+            DB::beginTransaction();
+            try {
                 $notification->is_new = 0;
                 if (!$notification->save()) {
                     DB::rollback();
+
                     return abort(404);
                 }
+
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
             }
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
         }
 
         return view('admin.notification.show', compact('notification'));
 
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Notification $id)
     {
         $id->delete();

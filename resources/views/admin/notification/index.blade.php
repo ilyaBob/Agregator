@@ -1,15 +1,14 @@
-<?php
+@php
     use \App\Models\Admin\Notification;
     use \App\Enums\NotificationEnum;
 
     /**
      * @var Notification $notification
-    */
-?>
+     */
+@endphp
 @extends('layouts.admin')
 @section('container')
     <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
@@ -26,7 +25,6 @@
             </div>
         </section>
 
-        <!-- Main content -->
         <section class="content">
             <div class="row">
                 <div class="col-md-3">
@@ -47,7 +45,7 @@
                                         <i class="far fa-envelope"></i> Все уведомления
                                     </a>
                                 </li>
-                                @foreach(\App\Enums\NotificationEnum::getTypeList() as $key => $type)
+                                @foreach(NotificationEnum::getTypeList() as $key => $type)
                                     <li class="nav-item">
                                         <a href="{{route('notification.index')."?type=$key"}}" class="nav-link">
                                             <i class="far fa-envelope"></i> {{$type}}
@@ -59,7 +57,6 @@
                     </div>
                 </div>
 
-                <!-- /.col -->
                 <div class="col-md-9">
                     <div class="card  @if(request()->type == NotificationEnum::TYPE_LOGS){{
                         'card-orange'
@@ -86,8 +83,12 @@
                                                     <label for="check_{{$notification->id}}"></label>
                                                 </div>
                                             </td>
-                                            <td class="mailbox-star"><a href="#"><i class="@if($notification->is_new) fas fa-star @endif  text-warning"></i></a></td>
-                                            <td class="mailbox-name"><a href="{{ route('notification.show', $notification->id) }}">{{ mb_strimwidth($notification->title, 0, 30,'...')}}</a></td>
+                                            <td class="mailbox-star"><a href="#"><i
+                                                        class="@if($notification->is_new) fas fa-star @endif  text-warning"></i></a>
+                                            </td>
+                                            <td class="mailbox-name"><a
+                                                    href="{{ route('notification.show', $notification->id) }}">{{ mb_strimwidth($notification->title, 0, 30,'...')}}</a>
+                                            </td>
                                             <td class="mailbox-subject">{{ mb_strimwidth($notification->description, 0, 50,'...')}}</td>
                                             <td class="mailbox-date">{{$notification->created_at}}</td>
                                         </tr>
@@ -113,12 +114,8 @@
                             </div>
                         </div>
                     </div>
-                    <!-- /.card -->
                 </div>
-                <!-- /.col -->
             </div>
-            <!-- /.row -->
         </section>
-        <!-- /.content -->
     </div>
 @endsection

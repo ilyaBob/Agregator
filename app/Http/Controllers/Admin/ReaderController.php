@@ -13,7 +13,7 @@ class ReaderController extends Controller
 {
     public function index()
     {
-        $readers = Reader::all();
+        $readers = Reader::query()->orderBy('id', 'DESC')->paginate(10);
         return view('admin.reader.index', compact('readers'));
     }
 

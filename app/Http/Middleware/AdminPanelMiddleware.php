@@ -21,7 +21,7 @@ class AdminPanelMiddleware
             return $this->redirectToMain($request);
         }
 
-        if (auth()->user()->role != 'admin') {
+        if (!auth()->user()->isAdmin()) {
             return $this->redirectToMain($request);
         }
 

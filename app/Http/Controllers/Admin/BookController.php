@@ -22,7 +22,7 @@ class BookController extends Controller
     {
         $data = $request->validated();
         $filter = app()->make(BookFilter::class, ['queryParams' => array_filter($data)]);
-        $books = Book::query()->orderBy('id', 'DESC')->filter($filter)->get();
+        $books = Book::query()->orderBy('id', 'DESC')->filter($filter)->paginate(10);
         return view('admin.book.index', compact('books'));
     }
 

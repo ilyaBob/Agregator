@@ -8,8 +8,7 @@ use App\Http\Requests\ImportRequest;
 use App\Imports\BookImport;
 use Maatwebsite\Excel\Facades\Excel;
 
-
-class ImportController extends Controller
+class ImportExportController extends Controller
 {
     public function index()
     {

@@ -33,7 +33,7 @@ use \App\Enums\MassageEnum;
                             </div>
                             <div class="card-body">
                                 <x-message key={{MassageEnum::TYPE_ERROR}} />
-                                <table id="example1" class="table table-bordered table-striped">
+                                <table class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
                                         <th>ID</th>
@@ -61,6 +61,7 @@ use \App\Enums\MassageEnum;
                                         @endforeach
                                     </tbody>
                                 </table>
+                                {{$authors->links('includes.backend.paginate-notification')}}
                             </div>
                         </div>
                     </div>

@@ -1,7 +1,6 @@
 @extends('layouts.admin')
 @section('container')
     <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
@@ -16,10 +15,9 @@
                         </ol>
                     </div>
                 </div>
-            </div><!-- /.container-fluid -->
+            </div>
         </section>
 
-        <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -32,16 +30,8 @@
                                     @csrf
                                     @method('PUT')
                                     <div class="card-body">
-                                        <div class="form-group">
-                                            <label for="genre-name">Жанр</label>
-                                            <input type="text" name="name" class="form-control" id="genre-name" placeholder="Жанр" value="{{ $genre->name }}">
-
-                                        </div>
-                                        <div class="form-check">
-                                            <input name="is_active" type="checkbox" class="form-check-input" id="is-active-genre"
-                                                    value="1" {{$genre->is_active? 'checked': false}} >
-                                            <label class="form-check-label" for="is-active-genre">Актитивный</label>
-                                        </div>
+                                        <x-forms.input id="genre-name" placeholder="Жанр" name="name" label="Жанр" value="{{$genre->name}}"/>
+                                        <x-forms.checkbox label="Актитивный" id="is-active-author" name="is_active" value="{{$genre->is_active}}"/>
                                     </div>
                                     <div class="card-footer">
                                         <button type="submit" class="btn btn-primary">Добавить</button>
@@ -49,12 +39,8 @@
                                 </form>
                             </div>
                     </div>
-                    <!-- /.col -->
                 </div>
-                <!-- /.row -->
             </div>
-            <!-- /.container-fluid -->
         </section>
-        <!-- /.content -->
     </div>
 @endsection

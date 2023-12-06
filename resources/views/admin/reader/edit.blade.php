@@ -1,3 +1,10 @@
+@php
+    use App\Models\Admin\Reader;
+
+    /**
+    * @var Reader $reader
+    */
+@endphp
 @extends('layouts.admin')
 @section('container')
     <div class="content-wrapper">
@@ -30,15 +37,8 @@
                                 @csrf
                                 @method('PUT')
                                 <div class="card-body">
-                                    <div class="form-group">
-                                        <label for="reader-name">Имя чтеца</label>
-                                        <input type="text" name="name" class="form-control" id="reader-name" placeholder="Имя чтеца" value="{{ $reader->name }}">
-
-                                    </div>
-                                    <div class="form-check">
-                                        <input name="is_active" type="checkbox" class="form-check-input" id="is-active-reader" value="1" {{$reader->is_active? 'checked': false}} >
-                                        <label class="form-check-label" for="is-active-reader">Актитивный</label>
-                                    </div>
+                                    <x-forms.input id="reader-name" placeholder="Имя чтеца" name="name" label="Имя чтеца" value="{{$reader->name}}"/>
+                                    <x-forms.checkbox label="Актитивный" id="is-active-author" name="is_active" value="{{$reader->is_active}}"/>
                                 </div>
                                 <div class="card-footer">
                                     <button type="submit" class="btn btn-primary">Добавить</button>

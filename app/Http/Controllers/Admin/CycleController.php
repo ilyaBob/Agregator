@@ -13,7 +13,7 @@ class CycleController extends Controller
 {
     public function index()
     {
-        $cycles = Cycle::all();
+        $cycles = Cycle::query()->orderBy('id', 'DESC')->paginate(10);
         return view('admin.cycle.index', compact('cycles'));
     }
 

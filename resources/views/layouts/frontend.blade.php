@@ -5,7 +5,8 @@
     <meta name="charset" content="utf-8">
     <link href="{{asset('css/autotunespeed-cb47929c2a0e39b91d7fe555f25b98d1.css')}}" rel="stylesheet" media="screen">
     <meta name="title" content="Fantworld - фантастические аудиокниги">
-    <meta name="description" content="У нас вы найдете только лучшие аудиокниги жанра фантастика и фэнтези различных авторов и декламаторов">
+    <meta name="description"
+          content="У нас вы найдете только лучшие аудиокниги жанра фантастика и фэнтези различных авторов и декламаторов">
     <meta name="keywords" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#303d4a">
@@ -37,19 +38,21 @@
                 <li><a href="/authors.html"><span class="fal fa-book"></span>Авторы</a></li>
                 <li><a href="/voiced.html"><span class="fal fa-volume-up"></span>Исполнители</a></li>
                 @can('view', auth()->user())
-                <li><a style="color: #fdc01c" href="{{route('admin.index')}}">Админка</a></li>
+                    <li><a style="color: #fdc01c" href="{{route('admin.index')}}">Админка</a></li>
                 @endcan
             </ul>
             <div class="header__btn-search btn-icon js-toggle-search"><span class="fal fa-search"></span></div>
 
-            @if(!auth()->user())
+
+            @guest
                 <div class="btn-accent centered-content js-show-login">Войти</div>
             @else
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button style="background: none" type="submit" class="btn-accent centered-content logout">Выйти</button>
+                    <button style="background: none" type="submit" class="btn-accent centered-content logout">Выйти
+                    </button>
                 </form>
-            @endif
+            @endguest
 
 
             <div class="header__btn-menu d-none js-show-mobile-menu"><span class="fal fa-bars"></span></div>
@@ -93,6 +96,6 @@
 
 <!-- jQuery -->
 <script src="{{asset('plugins/jquery/jquery.min.js')}}"></script>
-<script src="{{asset('/scripts/frontend.js')}}"> </script>
+<script src="{{asset('/scripts/frontend.js')}}"></script>
 </body>
 </html>

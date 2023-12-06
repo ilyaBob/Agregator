@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\Admin\addOneBookController;
+use App\Http\Controllers\Admin\AutoCreateBookController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\CycleController;
 use App\Http\Controllers\Admin\GenreController;
-use App\Http\Controllers\Admin\ImportController;
+use App\Http\Controllers\Admin\ImportExportController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ReaderController;
 use App\Http\Controllers\Frontend\MainController;
@@ -82,12 +82,12 @@ Route::middleware('admin')->group(function (){
             Route::delete('/{id}', 'destroy')->name('delete');
         });
 
-        Route::group(['prefix' => 'add-one', 'controller' => addOneBookController::class, 'as' => 'add-one.'], function(){
+        Route::group(['prefix' => 'add-one', 'controller' => AutoCreateBookController::class, 'as' => 'add-one.'], function(){
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
         });
 
-        Route::group(['prefix' => 'import', 'controller' => ImportController::class, 'as' => 'import.'], function(){
+        Route::group(['prefix' => 'import', 'controller' => ImportExportController::class, 'as' => 'import.'], function(){
             Route::get('/', 'index')->name('index');
             Route::get('/export', 'export')->name('export');
             Route::post('/', 'store')->name('store');
@@ -102,8 +102,10 @@ Route::middleware('admin')->group(function (){
     });
 });
 
-
 // Frontend
-Route::get('/', [MainController::class, 'index'])->name('frontend.main.index');
-Route::get('/{slug}', [PageController::class, 'index'])->name('frontend.page.index');
-Route::get('/{slug}/{slugBook}', [SinglePageController::class, 'index'])->name('frontend.single.index');
+Route::group(['as' => 'frontend.'], function (){
+    Route::get('/', [MainController::class, 'index'])->name('main.index');
+    Route::get('/{slug}', [PageController::class, 'index'])->name('page.index');
+    Route::get('/{slug}/{slugBook}', [SinglePageController::class, 'index'])->name('single.index');
+});
+

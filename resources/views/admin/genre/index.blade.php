@@ -1,8 +1,10 @@
-<?php
-
-use \App\Enums\MassageEnum;
-
-?>
+@php
+    use \App\Enums\MassageEnum;
+    use \App\Models\Admin\Genre;
+    /**
+    * @var Genre $genre
+    */
+@endphp
 
 @extends('layouts.admin')
 @section('container')
@@ -33,7 +35,7 @@ use \App\Enums\MassageEnum;
                             </div>
                             <div class="card-body">
                                 <x-message key={{MassageEnum::TYPE_ERROR}} />
-                                <table id="example1" class="table table-bordered table-striped">
+                                <table class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
                                         <th>ID</th>
@@ -63,6 +65,7 @@ use \App\Enums\MassageEnum;
                                     @endforeach
                                     </tbody>
                                 </table>
+                                {{$genres->links('includes.backend.paginate-notification')}}
                             </div>
                         </div>
                     </div>

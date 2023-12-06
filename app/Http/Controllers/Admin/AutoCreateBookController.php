@@ -7,7 +7,7 @@ use App\Http\Requests\StoreAddOneBookRequest;
 use App\Jobs\StoreBookJob;
 use App\Services\AutoCreateBookService;
 
-class addOneBookController extends Controller
+class AutoCreateBookController extends Controller
 {
     public function index()
     {
@@ -20,15 +20,15 @@ class addOneBookController extends Controller
         $serviceAddBook = new AutoCreateBookService();
 
         foreach ($data['url'] as $url) {
-/*            $dataUrl = $serviceAddBook->store($url);
+           $dataUrl = $serviceAddBook->store($url);
 
             if (!$dataUrl) {
                 continue;
             }
 
-            $serviceAddBook->create($dataUrl);*/
+            $serviceAddBook->create($dataUrl);
 
-            StoreBookJob::dispatch($url);
+            //StoreBookJob::dispatch($url);
 
         }
         return redirect()->back();

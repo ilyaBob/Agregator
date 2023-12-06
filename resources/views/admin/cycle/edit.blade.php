@@ -1,7 +1,13 @@
+@php
+    use App\Models\Admin\Cycle;
+
+    /**
+     * @var Cycle $cycle
+     */
+@endphp
 @extends('layouts.admin')
 @section('container')
     <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
@@ -16,10 +22,9 @@
                         </ol>
                     </div>
                 </div>
-            </div><!-- /.container-fluid -->
+            </div>
         </section>
 
-        <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -32,16 +37,8 @@
                                     @csrf
                                     @method('PUT')
                                     <div class="card-body">
-                                        <div class="form-group">
-                                            <label for="cycle-name">Цикл</label>
-                                            <input type="text" name="name" class="form-control" id="cycle-name" placeholder="Цикл" value="{{ $cycle->name }}">
-
-                                        </div>
-                                        <div class="form-check">
-                                            <input name="is_active" type="checkbox" class="form-check-input" id="is-active-cycle"
-                                                    value="1" {{$cycle->is_active? 'checked': false}} >
-                                            <label class="form-check-label" for="is-active-cycle">Актитивный</label>
-                                        </div>
+                                        <x-forms.input id="author-name" placeholder="Имя автора" name="name" label="Имя автора" value="{{$cycle->name}}"/>
+                                        <x-forms.checkbox label="Актитивный" id="is-active-author" name="is_active" value="{{$cycle->is_active}}"/>
                                     </div>
                                     <div class="card-footer">
                                         <button type="submit" class="btn btn-primary">Добавить</button>
@@ -49,12 +46,8 @@
                                 </form>
                             </div>
                     </div>
-                    <!-- /.col -->
                 </div>
-                <!-- /.row -->
             </div>
-            <!-- /.container-fluid -->
         </section>
-        <!-- /.content -->
     </div>
 @endsection

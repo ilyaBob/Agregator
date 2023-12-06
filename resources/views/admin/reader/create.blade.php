@@ -1,7 +1,6 @@
 @extends('layouts.admin')
 @section('container')
     <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
@@ -16,10 +15,9 @@
                         </ol>
                     </div>
                 </div>
-            </div><!-- /.container-fluid -->
+            </div>
         </section>
 
-        <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -31,14 +29,8 @@
                                 <form action="{{ route('reader.store') }}" method="POST">
                                     @csrf
                                     <div class="card-body">
-                                        <div class="form-group">
-                                            <label for="reader-name">Имя чтеца</label>
-                                            <input type="text" name="name" class="form-control" id="reader-name" placeholder="Имя чтеца">
-                                        </div>
-                                        <div class="form-check">
-                                            <input name="is_active" type="checkbox" class="form-check-input" id="is-active-reader" value="1">
-                                            <label class="form-check-label" for="is-active-reader">Актитивный</label>
-                                        </div>
+                                        <x-forms.input id="reader-name" placeholder="Имя чтеца" name="name" label="Имя чтеца"/>
+                                        <x-forms.checkbox label="Актитивный" id="is-active-author" name="is_active"/>
                                     </div>
                                     <div class="card-footer">
                                         <button type="submit" class="btn btn-primary">Добавить</button>
@@ -46,12 +38,8 @@
                                 </form>
                             </div>
                     </div>
-                    <!-- /.col -->
                 </div>
-                <!-- /.row -->
             </div>
-            <!-- /.container-fluid -->
         </section>
-        <!-- /.content -->
     </div>
 @endsection

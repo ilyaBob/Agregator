@@ -80,6 +80,7 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                                {{$books->withQueryString()->links('includes.backend.paginate-notification')}}
                             </div>
                         </div>
                     </div>

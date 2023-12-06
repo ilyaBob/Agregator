@@ -1,8 +1,11 @@
-<?php
+@php
+    use App\Models\Admin\Cycle;
+    use \App\Enums\MassageEnum;
 
-use \App\Enums\MassageEnum;
-
-?>
+    /**
+     * @var Cycle $cycle
+     */
+@endphp
 
 @extends('layouts.admin')
 @section('container')
@@ -33,7 +36,7 @@ use \App\Enums\MassageEnum;
                             </div>
                             <div class="card-body">
                                 <x-message key={{MassageEnum::TYPE_ERROR}} />
-                                <table id="example1" class="table table-bordered table-striped">
+                                <table class="table table-bordered table-striped">
                                     <thead>
                                     <tr>
                                         <th>ID</th>
@@ -61,6 +64,7 @@ use \App\Enums\MassageEnum;
                                         @endforeach
                                     </tbody>
                                 </table>
+                                {{$cycles->links('includes.backend.paginate-notification')}}
                             </div>
                         </div>
                     </div>
@@ -68,4 +72,6 @@ use \App\Enums\MassageEnum;
             </div>
         </section>
     </div>
+
+
 @endsection
