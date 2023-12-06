@@ -27,11 +27,13 @@ class BookResource extends JsonResource
             'genreSlug' => $this->genre_slug,
             'image' => $this->image,
             'description' => $this->description,
-            'cycle' => [
-                'cycleId' => $this->cycle_id,
-                'cycleName' => $this->cycle->name,
-                'cycleNumber' => $this->cycle_number,
-            ],
+            'cycle' => $this->when($this->cycle_id, function () {
+                return [
+                    'cycleId' => $this->cycle_id,
+                    'cycleName' => $this->whenNotNull($this->cycle->name),
+                    'cycleNumber' => $this->cycle_number,
+                ];
+            }),
             'genres' => GenreResource::collection($this->whenLoaded('genres')),
             'readers' => ReaderResource::collection($this->whenLoaded('readers')),
             'authors' => AuthorResource::collection($this->whenLoaded('authors')),

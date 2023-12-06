@@ -25,7 +25,7 @@ class BookController extends BaseApiController
         DB::beginTransaction();
         try {
             $data = $request->validated();
-            $book = BookService::store($data);
+            $book = BookService::store($data)->load(['genres', 'readers', 'authors']);
 
             DB::commit();
 
@@ -33,13 +33,14 @@ class BookController extends BaseApiController
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json(['message' => $e->getMessage()], 404);
+            return response()->json(['message' => $e->getMessage()], $e->getCode());
         }
     }
 
     public function show(Book $id)
     {
         $book = $id->load(['genres', 'authors', 'readers']);
+
         return BookResource::make($book);
     }
 
@@ -48,8 +49,7 @@ class BookController extends BaseApiController
         DB::beginTransaction();
         try {
             $data = $request->validated();
-            $id->update($data);
-            $book = $id;
+            $book = BookService::update($id, $data)->load(['genres', 'readers', 'authors']);
 
             DB::commit();
 
@@ -57,7 +57,7 @@ class BookController extends BaseApiController
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $e->getMessage();
+            return response()->json(['message' => $e->getMessage()], $e->getCode());
         }
     }
 
@@ -65,18 +65,18 @@ class BookController extends BaseApiController
     {
         DB::beginTransaction();
         try {
-            if (!empty($id->books[0])) {
-                throw new Exception('К данному чтецу "' . $id->name . '" привязанны книги, для начала удалите их');
-            }
-
+            $id->genres()->detach($id->genres);
+            $id->authors()->detach($id->authors);
+            $id->readers()->detach($id->readers);
             $id->delete();
+
             DB::commit();
 
             return response()->json(['message' => 'success']);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['message' => $e->getMessage()]);
+            return response()->json(['message' => $e->getMessage()], $e->getCode());
         }
     }
 }

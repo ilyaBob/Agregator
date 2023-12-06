@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Validator;
 
 class BookService
 {
+    /**
+     * @throws Exception
+     */
     public static function store($data)
     {
         $data['slug'] = TransliterationService::generateSlug($data['title']);
@@ -39,6 +42,19 @@ class BookService
         }
 
         $book = Book::create($data);
+
+
+        if (Author::whereIn('id', $authors)->count() !== count($authors)) {
+            throw new Exception('Один или несколько авторов не существуют', 422);
+        }
+        if (Reader::whereIn('id', $readers)->count() !== count($readers)) {
+            throw new Exception('Один или несколько чтецов не существуют', 422);
+        }
+        if (Genre::whereIn('id', $genres)->count() !== count($genres)) {
+            throw new Exception('Один или несколько жанров не существуют', 422);
+        }
+
+
         $book->authors()->attach($authors);
         $book->readers()->attach($readers);
         $book->genres()->attach($genres);
@@ -50,7 +66,7 @@ class BookService
         return $book;
     }
 
-    public static function update($id, $data): void
+    public static function update($id, $data): mixed
     {
         if (!key_exists('is_active', $data)) {
             $data['is_active'] = 0;
@@ -70,9 +86,22 @@ class BookService
         }
 
         $id->update($data);
+
+        if (Author::whereIn('id', $authors)->count() !== count($authors)) {
+            throw new Exception('Один или несколько авторов не существуют', 422);
+        }
+        if (Author::whereIn('id', $readers)->count() !== count($readers)) {
+            throw new Exception('Один или несколько чтецов не существуют', 422);
+        }
+        if (Author::whereIn('id', $genres)->count() !== count($genres)) {
+            throw new Exception('Один или несколько жанров не существуют', 422);
+        }
+
         $id->authors()->sync($authors);
         $id->readers()->sync($readers);
         $id->genres()->sync($genres);
+
+        return $id;
     }
 
     /**
@@ -90,11 +119,11 @@ class BookService
             $genre = trim($genre);
 
             $genreItem = Genre::firstOrCreate([
-                'name' => $genre
+                'name' => $genre,
             ], [
                 'name' => $genre,
                 'slug' => TransliterationService::generateSlug($genre),
-                'is_active' => '1'
+                'is_active' => '1',
             ]);
 
             $arrGenreRes[] = $genreItem->id;
@@ -112,8 +141,8 @@ class BookService
     public static function getGenreSlug(int $id): string
     {
         $genre = Genre::find($id);
-        return $genre->slug;
 
+        return $genre->slug;
     }
 
     /**
@@ -129,8 +158,8 @@ class BookService
         if (isset($matches[0])) {
             return $matches[0];
         }
-        return '';
 
+        return '';
     }
 
     /**
@@ -148,11 +177,11 @@ class BookService
             $author = trim($author);
 
             $authorItem = Author::firstOrCreate([
-                'name' => $author
+                'name' => $author,
             ], [
                 'name' => $author,
                 'slug' => TransliterationService::generateSlug($author),
-                'is_active' => '1'
+                'is_active' => '1',
             ]);
 
             $arrAuthorRes[] = $authorItem->id;
@@ -176,15 +205,16 @@ class BookService
             $reader = trim($reader);
 
             $readerItem = Reader::firstOrCreate([
-                'name' => $reader
+                'name' => $reader,
             ], [
                 'name' => $reader,
                 'slug' => TransliterationService::generateSlug($reader),
-                'is_active' => '1'
+                'is_active' => '1',
             ]);
 
             $arrReaderRes[] = $readerItem->id;
         }
+
         return $arrReaderRes;
     }
 
@@ -200,6 +230,7 @@ class BookService
         if (!empty($match)) {
             return str_replace("№", "", $match[0]);
         }
+
         return 0;
     }
 
@@ -220,15 +251,16 @@ class BookService
             }
 
             $cycle = Cycle::firstOrCreate([
-                'name' => $cycleName
+                'name' => $cycleName,
             ], [
                 'name' => $cycleName,
                 'slug' => TransliterationService::generateSlug($cycleName),
-                'is_active' => '1'
+                'is_active' => '1',
             ]);
 
             return $cycle->id;
         }
+
         return null;
     }
 
@@ -264,10 +296,10 @@ class BookService
             $file = trim($file);
 
             $fileItem = File::firstOrCreate([
-                'file' => $file
+                'file' => $file,
             ], [
                 'file' => $file,
-                'title' => $count
+                'title' => $count,
             ]);
             $count++;
             $arrFilesRes[] = $fileItem->id;
