@@ -2,93 +2,96 @@
 
 namespace App\Services\Parsing;
 
+use App\Enums\NotificationEnum;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Models\Admin\Book;
+use App\Models\Admin\File;
+use App\Services\BookService;
+use App\Services\TransliterationService;
+use Exception;
+use Illuminate\Support\Facades\DB;
 use simplehtmldom\HtmlWeb;
 
 class Fantworld
 {
-    public static function findData($url){
-        $client = new HtmlWeb();
-        $html = $client->load($url);
+    public $domain = null;
+    public $url = null;
 
-        $title = $html->find('h1', 0)->plaintext;
-        $id = Book::where('title', $title)->first();
-
-        if (!empty($id)) {
-            return null;
-        }
-
-        $list = $html->find('.pmovie__header-list>li');
-        $description = $html->find('.full-text', 0)->plaintext;
-        $image = $html->find('.pmovie__poster img', 0)->getAttribute('data-src');
-
-
-        return [
-            'list' => $list,
-            'description' => $description,
-            'image' => $image,
-            'html' => $html,
-            'title' => $title,
-        ];
-    }
-}
-
-/*
-class AutoCreateBookService
-{
-    public function store($url)
+    public function findData($url)
     {
-        $parsedUrl = parse_url($url);
-        $domain = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
-
-        $data = [];
-        switch ($parsedUrl['host']) {
-            case 'audiokniga-online.ru':
-                $audioknigaOnline = new AudioknigaOnline();
-                $data = $audioknigaOnline->findData($url);
-
-                break;
-            case 'fantworld.net':
-                $data = Fantworld::findData($url);
-                break;
-        }
-
-
-        DB::beginTransaction();
-
         try {
+            $this->url = $url;
+            $client = new HtmlWeb();
+            $html = $client->load($url);
+
+            if (!isset($html)) {
+                throw new Exception('Страница не найдена, '. $this->getMessageUrl($url), 404);
+            }
+
+            $parsedUrl = parse_url($url);
+
+            $this->domain = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+            $title = $html->find('h1', 0)->plaintext;
+            $id = Book::where('title', $title)->first();
+
+            if (!empty($id)) {
+                return null;
+            }
+
+            $list = $html->find('.pmovie__header-list>li');
+            $description = $html->find('.full-text', 0)->plaintext;
+            $image = $html->find('.pmovie__poster img', 0)->getAttribute('data-src');
+
+            DB::beginTransaction();
+
             $res = [];
 
-            foreach ($data['list'] as $item) {
-                preg_match("/Год:|Автор:|Читает:|Время|Цикл:|Жанр:/", $item->plaintext, $match);
+            $res['genres'] = null;
+            $res['genre_slug'] = null;
+            $res["cycle_number"] = null;
+            $res['authors'] = null;
+            $res['readers'] = null;
+            $res['age'] = null;
+            $res['time'] = null;
+
+            foreach ($list as $item) {
+                preg_match("/Год:|Автор:|Читает:|Время|Цикл|Жанр:/", $item->plaintext, $match);
+
+                if (empty($match)) {
+                    continue;
+                }
+
                 $val = str_replace($match[0], "", $item->plaintext);
                 $key = str_replace(":", "", $match[0]);
 
                 switch ($key) {
                     case 'Жанр':
-                        $res['genres'] = $this->getGenres($val);
-                        $res['genre_slug'] = $this->getGenreSlug($val);
-                        break;
+                        $val = str_replace('/', ',', $val);
+                        $res['genres'] = BookService::getOrCreateGenre($val);
+                        $res['genre_slug'] = BookService::getGenreSlug($res['genres'][0]);
 
+                        break;
                     case 'Цикл':
-                        $res["cycle_number"] = $this->getCycle($val);
-                        $res["cycle_id"] = $this->getCycleNumber($val);
+
+                        $val = str_replace(':', '', $val);
+                        $res["cycle_number"] = BookService::getCycleNumber($val);
+                        $res["cycle_id"] = BookService::getOrCreateCycle($val);
                         break;
 
                     case 'Автор':
-                        $res['authors'] = $this->getAuthors($val);
+                        $res['authors'] = BookService::getOrCreateAuthors($val);
                         break;
 
                     case 'Читает':
-                        $res['readers'] = $this->getReaders($val);
+                        $res['readers'] = BookService::getOrCreateReaders($val);
                         break;
 
                     case 'Год':
-                        $res['age'] = $this->getAge($val);
+                        $res['age'] = BookService::getAge($val);
                         break;
 
                     case 'Время':
-                        $res['time'] = $this->getTime($val);
+                        $res['time'] = BookService::getTime($val);
                         break;
 
                     default:
@@ -97,13 +100,19 @@ class AutoCreateBookService
                 }
             }
 
-            $res["description"] = $data['description'];
-            $res["title"] = $data['title'];
-            $res["slug"] = TransliterationService::generateSlug($data['title']);
-            $res["image"] = $domain . $data['image'];
-            $res['files'] = $this->getFiles($data['html']);
+            $res["description"] = $description;
+            $res["title"] = $title;
+            $res["slug"] = TransliterationService::generateSlug($title);
+            $res["image"] = $this->domain . $image;
+            $res['files'] = $this->getFiles($html);
             $res['link_to_original'] = $url;
             $res['is_active'] = '1';
+
+            foreach ($res as $key => $attribute) {
+                if (empty($attribute) && ($key != 'cycle_number' && $key != 'age')) {
+                    throw new Exception("Не найдено $key" . $this->getMessageUrl($url));
+                }
+            }
 
             DB::commit();
 
@@ -111,128 +120,11 @@ class AutoCreateBookService
 
         } catch (Exception $e) {
             DB::rollback();
-            abort(404);
+            NotificationController::create('Критическая ошибка', $e->getMessage(), NotificationEnum::TYPE_ERROR);
+            return false;
         }
     }
 
-    public function getGenres($val)
-    {
-        $arrGenre = explode("/", $val);
-        $arrGenreRes = [];
-
-        foreach ($arrGenre as $genre) {
-            $genre = trim($genre);
-
-            $genreItem = Genre::firstOrCreate([
-                'name' => $genre
-            ], [
-                'name' => $genre,
-                'slug' => TransliterationService::generateSlug($genre),
-                'is_active' => '1'
-            ]);
-
-            $arrGenreRes[] = $genreItem->id;
-        }
-
-        return $arrGenreRes;
-    }
-
-    public function getGenreSlug($val)
-    {
-        $arrGenre = explode("/", $val);
-        $arrGenreRes = [];
-
-        foreach ($arrGenre as $genre) {
-            $genre = trim($genre);
-
-            $genreItem = Genre::firstOrCreate([
-                'name' => $genre
-            ], [
-                'name' => $genre,
-                'slug' => TransliterationService::generateSlug($genre),
-                'is_active' => '1'
-            ]);
-
-            return $genreItem->slug;
-        }
-    }
-
-    public function getCycle($val)
-    {
-        preg_match("/№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]/", $val, $match);
-        return str_replace("№", "", $match[0]);
-    }
-
-    public function getCycleNumber($val)
-    {
-        preg_match("/№[1-9][1-9]|№[1-9]|[1-9][1-9]|[1-9]/", $val, $match);
-        $cycleName = trim(str_replace($match[0], "", $val));
-
-        $cycle = Cycle::firstOrCreate([
-            'name' => $cycleName
-        ], [
-            'name' => $cycleName,
-            'slug' => TransliterationService::generateSlug($cycleName),
-            'is_active' => '1'
-        ]);
-
-        return $cycle->id;
-    }
-
-    public function getAuthors($val)
-    {
-        $arrAuthor = explode(",", $val);
-        $arrAuthorRes = [];
-
-        foreach ($arrAuthor as $author) {
-            $author = trim($author);
-
-            $authorItem = Author::firstOrCreate([
-                'name' => $author
-            ], [
-                'name' => $author,
-                'slug' => TransliterationService::generateSlug($author),
-                'is_active' => '1'
-            ]);
-
-            $arrAuthorRes[] = $authorItem->id;
-        }
-
-        return $arrAuthorRes;
-    }
-
-    public function getReaders($val)
-    {
-        $arrReader = explode(",", $val);
-        $arrReaderRes = [];
-
-        foreach ($arrReader as $reader) {
-            $reader = trim($reader);
-
-            $readerItem = Reader::firstOrCreate([
-                'name' => $reader
-            ], [
-                'name' => $reader,
-                'slug' => TransliterationService::generateSlug($reader),
-                'is_active' => '1'
-            ]);
-
-            $arrReaderRes[] = $readerItem->id;
-        }
-        return $arrReaderRes;
-    }
-
-    public function getAge($val)
-    {
-        preg_match("/\d+/", $val, $matches);
-        return $matches[0];
-    }
-
-    public function getTime($val)
-    {
-        preg_match("/\d{2}:\d{2}:\d{2}/", $val, $matches);
-        return $matches[0];
-    }
 
     public function getFiles($html)
     {
@@ -266,6 +158,11 @@ class AutoCreateBookService
 
         return $files;
     }
+
+    protected function getMessageUrl($url): string
+    {
+        return " (Ссылка: $url)";
+    }
 }
 
-*/
+

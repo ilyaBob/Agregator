@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Services\AutoCreateBookService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -31,8 +30,6 @@ class StoreBookJob implements ShouldQueue
     {
         $serviceAddBook = new AutoCreateBookService();
         $dataUrl = $serviceAddBook->store($this->url);
-
-
 
         if ($dataUrl) {
             $serviceAddBook->create($dataUrl);

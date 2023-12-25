@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Admin\Book;
 use App\Services\Parsing\AudioknigaOnline;
+use App\Services\Parsing\Fantworld;
 
 class AutoCreateBookService
 {
@@ -13,15 +14,10 @@ class AutoCreateBookService
 
         switch ($parsedUrl['host']) {
             case 'audiokniga-online.ru':
-                $audioknigaOnline = new AudioknigaOnline();
-                return $audioknigaOnline->findData($url);
+                return (new AudioknigaOnline())->findData($url);
 
-                break;
             case 'fantbook.org':
-                /*
-                return Fantworld::findData($url);
-                break;
-                */
+                return (new Fantworld())->findData($url);
         }
         return abort(404);
     }

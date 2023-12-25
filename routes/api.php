@@ -39,7 +39,7 @@ Route::group(['prefix' => 'author', 'controller' => AuthorController::class], fu
 
     Route::group(['middleware' => ['auth', 'admin']], function () {
         Route::post('/create', 'create');
-        Route::put('/{id}', 'update');
+        Route::patch('/{id}', 'update');
         Route::delete('/{id}', 'delete');
     });
 });
