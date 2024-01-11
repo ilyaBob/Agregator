@@ -85,6 +85,7 @@ Route::middleware('admin')->group(function (){
         Route::group(['prefix' => 'add-one', 'controller' => AutoCreateBookController::class, 'as' => 'add-one.'], function(){
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
+            Route::post('/all', 'storeAll')->name('store-all');
         });
 
         Route::group(['prefix' => 'import', 'controller' => ImportExportController::class, 'as' => 'import.'], function(){

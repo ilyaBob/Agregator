@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAddOneBookRequest;
 use App\Jobs\StoreBookJob;
 use App\Services\AutoCreateBookService;
+use simplehtmldom\HtmlWeb;
 
 class AutoCreateBookController extends Controller
 {
@@ -19,18 +20,17 @@ class AutoCreateBookController extends Controller
         $data = $request->validated();
         $serviceAddBook = new AutoCreateBookService();
 
-        foreach ($data['url'] as $url) {
-           $dataUrl = $serviceAddBook->store($url);
+        $serviceAddBook->filterStore($data['url']);
 
-            if (!$dataUrl) {
-                continue;
-            }
+        return redirect()->back();
+    }
 
-            $serviceAddBook->create($dataUrl);
+    public function storeAll(StoreAddOneBookRequest $request){
+        $data = $request->validated();
+        $serviceAddBook = new AutoCreateBookService();
 
-            //StoreBookJob::dispatch($url);
+        $serviceAddBook->findUrls($data['url'][0]);
 
-        }
         return redirect()->back();
     }
 }

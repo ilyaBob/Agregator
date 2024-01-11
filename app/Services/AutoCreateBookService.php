@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Admin\Book;
 use App\Services\Parsing\AudioknigaOnline;
 use App\Services\Parsing\Fantworld;
+use simplehtmldom\HtmlWeb;
 
 class AutoCreateBookService
 {
@@ -40,5 +41,34 @@ class AutoCreateBookService
         $book->readers()->attach($readers);
         $book->genres()->attach($genres);
         $book->files()->attach($files);
+    }
+
+    public function filterStore(array $urls)
+    {
+        foreach ($urls as $url) {
+            $dataUrl = $this->store($url);
+
+            if (!$dataUrl) {
+                continue;
+            }
+
+            $this->create($dataUrl);
+        }
+    }
+
+    public function findUrls(string $url){
+
+        $client = new HtmlWeb();
+        $html = $client->load($url);
+
+        $list = $html->find('.sect__content>.poster');
+
+        $data = [];
+
+        foreach ($list as $item){
+            $data[] = $item->attr['href'];
+        }
+
+        $this->filterStore($data);
     }
 }
