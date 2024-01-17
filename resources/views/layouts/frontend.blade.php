@@ -73,7 +73,7 @@
                class="btn-accent centered-content">Правообладателям</a>
 
             <div class="footer__text flex-grow-1">
-                © 2023 "Fantworld.net" Лучшие фантастические аудиокниги рунета слушать онлайн
+                © {{ date('Y') }} "Fantworld.net" Лучшие фантастические аудиокниги рунета слушать онлайн
             </div>
         </footer>
     </div>

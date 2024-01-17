@@ -11,16 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('genres', function (Blueprint $table) {
+        Schema::create('top', function (Blueprint $table) {
             $table->id();
 
-            $table->string('name');
-            $table->string('slug');
-            $table->integer('parent_id')->nullable();
-            $table->boolean('is_active')->default(false);
+            $table->integer('top_book_id')->comment('Топ книг')->nullable();
+            $table->integer('top_week_book_id')->comment('Топ книг за неделю')->nullable();
 
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('genres');
+        Schema::dropIfExists('top');
     }
 };

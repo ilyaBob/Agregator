@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property integer $id
  * @property string $name
  * @property string $slug
+ * @property integer $parent_id
  * @property integer $is_active
  * @property string created_at
  *

@@ -11,8 +11,19 @@ class AsideMenuComponent extends Component
 {
     public function render(): View|Closure|string
     {
+        $data = [];
         $genres = Genre::getGenres();
 
-        return view('components.aside-menu-component', compact('genres'));
+        /** @var Genre $genre */
+        foreach ($genres as $genre) {
+            $parentId = $genre->parent_id ?? $genre->id;
+            $data[$parentId][] = [
+                'name' => $genre->name,
+                'slug' => $genre->slug,
+                'parent_id' => $genre->parent_id,
+            ];
+        }
+
+        return view('components.aside-menu-component', compact('data'));
     }
 }

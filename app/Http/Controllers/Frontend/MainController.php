@@ -13,7 +13,13 @@ class MainController extends Controller
         $books = Book::query()->orderBy('id', 'DESC')->paginate(10, ['*'], 'page')->onEachSide(3);
         $genres = Genre::getGenres();
 
-        return view('frontend.index', compact('books', 'genres'));
+        $topBook = Book::query()
+            ->join('top', 'books.id', '=', 'top.top_book_id')
+            ->whereNotNull('top_book_id')
+            ->limit(6)
+            ->get();
+
+        return view('frontend.index', compact('books', 'genres', 'topBook'));
     }
 }
 

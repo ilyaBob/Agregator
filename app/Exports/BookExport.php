@@ -49,7 +49,7 @@ class BookExport implements FromArray, WithHeadings
                 'readers' => $book->readers->pluck('name')->implode(', '),
                 'genres' => $book->genres->pluck('name')->implode(', '),
                 'files' => $book->files->pluck('file')->implode(', '),
-                'cycle' => $book->cycle->name,
+                'cycle' => $book->cycle?->name,
             ];
         }
 
